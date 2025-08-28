@@ -142,6 +142,28 @@
     return image;
 }
 
++ (UIImage *)imageNamed:(NSString *)name
+               ofBundle:(NSString *)bundleName
+             inDirectory:(NSString *)directory {
+
+    // 找到目标 bundle
+    NSString *bundlePath = [[NSBundle mainBundle] pathForResource:bundleName ofType:@"bundle"];
+    if (!bundlePath) return nil;
+    NSBundle *resourceBundle = [NSBundle bundleWithPath:bundlePath];
+
+    // 拼接子目录路径
+    NSString *imagePath = nil;
+    if (directory.length > 0) {
+        imagePath = [resourceBundle pathForResource:name ofType:@"png" inDirectory:directory];
+    } else {
+        imagePath = [resourceBundle pathForResource:name ofType:@"png"];
+    }
+
+    if (!imagePath) return nil;
+
+    return [UIImage imageWithContentsOfFile:imagePath];
+}
+
 + (CGSize)getTextDrawingSize:(NSString *)text font:(UIFont *)font constrainedSize:(CGSize)constrainedSize {
     if (text.length <= 0) {
         return CGSizeZero;

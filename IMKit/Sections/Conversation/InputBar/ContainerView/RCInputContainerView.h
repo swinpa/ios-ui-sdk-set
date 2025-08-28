@@ -11,6 +11,8 @@
 #import "RCTextView.h"
 #import "RCExtensionKitDefine.h"
 #import "RCBaseView.h"
+#import "XSRCChatSessionInputToolBar.h"
+
 @protocol RCInputContainerViewDelegate;
 
 @interface RCInputContainerView : RCBaseView
@@ -30,6 +32,14 @@
 @property (nonatomic, strong) RCButton *additionalButton;
 
 @property (nonatomic, assign) KBottomBarStatus currentBottomBarStatus;
+
+
+/*!
+ 工具栏
+ */
+@property (strong, nonatomic) XSRCChatSessionInputToolBar *toolBar;
+
+
 
 /**
  输入框最大输入行数

@@ -50,6 +50,17 @@
 + (UIImage *)imageNamed:(NSString *)name ofBundle:(NSString *)bundleName;
 
 /*!
+ 获取资源包中的图片
+
+ - Parameter name:        图片名
+ - Parameter bundleName:  图片所在的Bundle名
+ - Parameter inDirectory: 图片所在的Bundle下面的文件夹
+ - Returns: 图片
+ */
++ (UIImage *)imageNamed:(NSString *)name
+               ofBundle:(NSString *)bundleName
+            inDirectory:(NSString *)directory;
+/*!
  根据文件类型返回会话中的图标
  - Parameter type: 文件类型
   如果 RCKitUIConf 的 reigsterFileSuffixTypes 中有自定义图标，返回自定义图标，否则，返回 RongCloud.bundle 中的默认图标

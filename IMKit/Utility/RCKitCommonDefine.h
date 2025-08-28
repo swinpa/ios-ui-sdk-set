@@ -12,6 +12,7 @@
 
 #define RCLocalizedString(key) [RCKitUtility localizedString:(key) table:@"RongCloudKit"]
 #define RCResourceImage(value) [RCKitUtility imageNamed:(value) ofBundle:@"RongCloud.bundle"]
+#define XSRCResourceImage(name, dir) [RCKitUtility imageNamed:(name) ofBundle:@"RongCloud" inDirectory:(dir)]
 #define RCResourceColor(key, colorStr) [RCKitUtility color:(key) originalColor:(colorStr)]
 
 #pragma mark - Screen Size

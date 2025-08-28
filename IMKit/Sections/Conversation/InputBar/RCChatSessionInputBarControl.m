@@ -813,6 +813,9 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
         _commonPhrasesView.backgroundColor =
             [RCKitUtility generateDynamicColor:RGBCOLOR(245, 245, 245) darkColor:HEXCOLOR(0x1c1c1c)];
         [_commonPhrasesView addSubview:self.commonPhrasesButton];
+        //TODO: -- start
+        _commonPhrasesView.backgroundColor = UIColor.redColor;
+        //TODO: -- end
     }
     return _commonPhrasesView;
 }
