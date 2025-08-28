@@ -367,6 +367,8 @@
     self.inputTextView.translatesAutoresizingMaskIntoConstraints = NO;
     self.toolBar.translatesAutoresizingMaskIntoConstraints = NO;
 
+    self.backgroundColor = [UIColor redColor];
+    
     NSDictionary *_bindingViews =
         NSDictionaryOfVariableBindings(_switchButton, _inputTextView, _recordButton, _emojiButton, _additionalButton);
 
