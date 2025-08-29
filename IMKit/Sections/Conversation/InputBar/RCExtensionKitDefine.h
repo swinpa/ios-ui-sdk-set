@@ -49,6 +49,11 @@ typedef NS_ENUM(NSInteger, RCChatSessionInputBarControlStyle) {
      输入框
      */
     RC_CHAT_INPUT_BAR_STYLE_CONTAINER = 8,
+    
+    /*!
+     输入框 - 简单工具栏
+     */
+    RC_CHAT_INPUT_BAR_STYLE_TOOLBAR = 9,
 };
 
 /*!

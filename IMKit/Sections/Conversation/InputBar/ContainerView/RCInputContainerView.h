@@ -37,7 +37,7 @@
 /*!
  工具栏
  */
-@property (strong, nonatomic) XSRCChatSessionInputToolBar *toolBar;
+@property (nonatomic, strong) XSRCChatSessionInputToolBar *toolBar;
 
 
 

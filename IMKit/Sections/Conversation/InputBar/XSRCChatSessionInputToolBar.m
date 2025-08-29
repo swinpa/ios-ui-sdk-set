@@ -27,12 +27,14 @@
 - (void)setupView {
     [super setupView];
     [self addSubview:self.stackView];
+    [self makeLayout];
+    self.backgroundColor = [UIColor whiteColor];
 }
 
 - (RCButton *)albumButton {
     if (!_albumButton) {
         _albumButton = [[RCButton alloc] initWithFrame:CGRectZero];
-        [_albumButton setImage:XSRCResourceImage(@"icon_im_conversatoin_inputbar_abulum",@"")
+        [_albumButton setImage:RCResourceImage(@"icon_im_conversatoin_inputbar_abulum")
                            forState:UIControlStateNormal];
         [_albumButton setExclusiveTouch:YES];
         [_albumButton addTarget:self
@@ -45,7 +47,7 @@
 - (RCButton *)cameraButton {
     if (!_cameraButton) {
         _cameraButton = [[RCButton alloc] initWithFrame:CGRectZero];
-        [_cameraButton setImage:XSRCResourceImage(@"icon_im_conversatoin_inputbar_camera",@"xs_im")
+        [_cameraButton setImage:RCResourceImage(@"icon_im_conversatoin_inputbar_camera")
                            forState:UIControlStateNormal];
         [_cameraButton setExclusiveTouch:YES];
         [_cameraButton addTarget:self
@@ -58,7 +60,7 @@
 - (RCButton *)giftButton {
     if (!_giftButton) {
         _giftButton = [[RCButton alloc] initWithFrame:CGRectZero];
-        [_giftButton setImage:XSRCResourceImage(@"icon_im_conversatoin_inputbar_gift",@"xs_im")
+        [_giftButton setImage:RCResourceImage(@"icon_im_conversatoin_inputbar_gift")
                            forState:UIControlStateNormal];
         [_giftButton setExclusiveTouch:YES];
         [_giftButton addTarget:self
@@ -71,7 +73,7 @@
 - (RCButton *)emojiButton {
     if (!_emojiButton) {
         _emojiButton = [[RCButton alloc] initWithFrame:CGRectZero];
-        [_emojiButton setImage:XSRCResourceImage(@"icon_im_conversatoin_inputbar_emoji",@"xs_im")
+        [_emojiButton setImage:RCResourceImage(@"icon_im_conversatoin_inputbar_emoji")
                            forState:UIControlStateNormal];
         [_emojiButton setExclusiveTouch:YES];
         [_emojiButton addTarget:self
@@ -102,16 +104,25 @@
 
 - (void)makeLayout {
     CGFloat topBottomMargin = 10.0;
-    CGFloat buttonSize = 28.0;
+    CGSize buttonSize = CGSizeMake(28.0, 28.0);
     CGFloat sideMargin = 33.0;
 
-    self.translatesAutoresizingMaskIntoConstraints = NO;
-    self.albumButton.translatesAutoresizingMaskIntoConstraints = NO;
-    self.cameraButton.translatesAutoresizingMaskIntoConstraints = NO;
-    self.giftButton.translatesAutoresizingMaskIntoConstraints = NO;
-    self.emojiButton.translatesAutoresizingMaskIntoConstraints = NO;
-
-
+    
+    NSArray *buttons = @[
+        self.albumButton,
+        self.cameraButton,
+        self.giftButton,
+        self.emojiButton
+    ];
+    // 按钮固定大小
+    for (UIButton *button in buttons) {
+        button.translatesAutoresizingMaskIntoConstraints = NO;
+        [NSLayoutConstraint activateConstraints:@[
+            [button.widthAnchor constraintEqualToConstant:buttonSize.width],
+            [button.heightAnchor constraintEqualToConstant:buttonSize.height]
+        ]];
+    }
+    self.stackView.translatesAutoresizingMaskIntoConstraints = NO;
     // StackView 左右上下约束
     [NSLayoutConstraint activateConstraints:@[
         [self.stackView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:sideMargin],
@@ -119,33 +130,34 @@
         [self.stackView.topAnchor constraintEqualToAnchor:self.topAnchor constant:topBottomMargin],
         [self.stackView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-topBottomMargin]
     ]];
-
-    // 按钮固定大小
-    for (UIButton *button in self.stackView.arrangedSubviews) {
-        [NSLayoutConstraint activateConstraints:@[
-            [button.widthAnchor constraintEqualToConstant:buttonSize],
-            [button.heightAnchor constraintEqualToConstant:buttonSize]
-        ]];
-    }
-
+    self.translatesAutoresizingMaskIntoConstraints = NO;
+    
     // 组件高度 = 按钮高度 + 上下间距
     [NSLayoutConstraint activateConstraints:@[
-        [self.heightAnchor constraintEqualToConstant:(topBottomMargin * 2 + buttonSize)]
+        [self.heightAnchor constraintEqualToConstant:(topBottomMargin * 2 + buttonSize.height)]
     ]];
 }
 
 - (void)didClickAlbumButton:(UIButton *)sender {
-    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(handleButtonEvent:event:)]) {
+        [self.delegate handleButtonEvent:sender event:XSRCChatSessionInputToolBarEventAlbum];
+    }
 }
 - (void)didClickCameraButton:(UIButton *)sender {
-    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(handleButtonEvent:event:)]) {
+        [self.delegate handleButtonEvent:sender event:XSRCChatSessionInputToolBarEventCamera];
+    }
 }
 
 - (void)didClickGiftButton:(UIButton *)sender {
-    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(handleButtonEvent:event:)]) {
+        [self.delegate handleButtonEvent:sender event:XSRCChatSessionInputToolBarEventGift];
+    }
 }
 - (void)didClickEmojiButton:(UIButton *)sender {
-    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(handleButtonEvent:event:)]) {
+        [self.delegate handleButtonEvent:sender event:XSRCChatSessionInputToolBarEventEmoji];
+    }
 }
 
 @end

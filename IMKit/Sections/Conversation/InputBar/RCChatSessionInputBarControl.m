@@ -66,8 +66,6 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 
 @property (nonatomic, assign) RCChatSessionInputBarControlType currentControlType;
 
-@property (nonatomic, assign) RCChatSessionInputBarControlStyle currentControlStyle;
-
 @property (nonatomic, strong) NSArray *commonPhrasesSource;
 
 @property (nonatomic, strong) UIView *commonPhrasesView;
@@ -286,13 +284,13 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
         self.commonPhrasesListView.dataSource = commonPhrasesList;
         [self.commonPhrasesListView reloadCommonPhrasesList];
         CGRect currentFrame = self.frame;
-        if (currentFrame.size.height != (RC_CommonPhrasesView_Height + RC_ChatSessionInputBar_Height)) {
+        if (currentFrame.size.height != (RC_CommonPhrasesView_Height + RC_ChatSessionInputBarHeight(self.currentControlStyle))) {
             currentFrame.origin.y -= RC_CommonPhrasesView_Height;
         }
         self.frame = CGRectMake(currentFrame.origin.x,
                                 currentFrame.origin.y,
                                 currentFrame.size.width
-                                ,RC_CommonPhrasesView_Height + RC_ChatSessionInputBar_Height);
+                                ,RC_CommonPhrasesView_Height + RC_ChatSessionInputBarHeight(self.currentControlStyle));
         KBottomBarStatus status = self.inputContainerView.currentBottomBarStatus;
         [self resetInputContainerView];
         [self layoutBottomBarWithStatus: status];
@@ -1521,9 +1519,9 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 
 - (CGFloat)inputBarHeight {
     if ((self.conversationType == ConversationType_PRIVATE || self.conversationType == ConversationType_GROUP)  && self.commonPhrasesSource.count > 0) {
-        return RC_ChatSessionInputBar_Height + RC_CommonPhrasesView_Height;
+        return RC_ChatSessionInputBarHeight(self.currentControlStyle) + RC_CommonPhrasesView_Height;
     } else {
-        return RC_ChatSessionInputBar_Height;
+        return RC_ChatSessionInputBarHeight(self.currentControlStyle);
     }
 }
 
@@ -1621,3 +1619,11 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
     self.inputContainerView.maxInputLines = maxInputLines;
 }
 @end
+
+CGFloat getChatSessionInputBarHeight(RCChatSessionInputBarControlStyle controlStyle) {
+    if (controlStyle == RC_CHAT_INPUT_BAR_STYLE_TOOLBAR) {
+        return RC_ChatSessionInputBar_Height + 48.0;
+    }else{
+        return RC_ChatSessionInputBar_Height;
+    }
+}

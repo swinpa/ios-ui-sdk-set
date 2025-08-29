@@ -16,6 +16,7 @@
 #import "RCMenuContainerView.h"
 #import "RCBaseNavigationController.h"
 #define RC_ChatSessionInputBar_Height 49.5f
+#define RC_ChatSessionInputBarHeight(type) getChatSessionInputBarHeight(type)
 ///输入栏扩展输入的唯一标识
 #define INPUT_MENTIONED_SELECT_TAG 1000
 #define PLUGIN_BOARD_ITEM_ALBUM_TAG 1001
@@ -52,6 +53,8 @@
  输入工具栏
  */
 @interface RCChatSessionInputBarControl : UIView
+
+@property (nonatomic, assign) RCChatSessionInputBarControlStyle currentControlStyle;
 
 #pragma mark - 会话属性
 
@@ -600,3 +603,5 @@
             editCompletion:(void (^)(UIImage *editedImage))editCompletion __attribute__((deprecated));
 
 @end
+
+CGFloat getChatSessionInputBarHeight(RCChatSessionInputBarControlStyle controlStyle);

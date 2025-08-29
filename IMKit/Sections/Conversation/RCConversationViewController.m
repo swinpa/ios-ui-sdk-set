@@ -223,9 +223,10 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
+    
     self.messageSelectionToolbar.frame =
-        CGRectMake(0, self.view.bounds.size.height - RC_ChatSessionInputBar_Height - [self getSafeAreaExtraBottomHeight],
-                   self.view.bounds.size.width, RC_ChatSessionInputBar_Height);
+        CGRectMake(0, self.view.bounds.size.height - RC_ChatSessionInputBarHeight(self.chatSessionInputBarControl.currentControlStyle) - [self getSafeAreaExtraBottomHeight],
+                   self.view.bounds.size.width, RC_ChatSessionInputBarHeight(self.chatSessionInputBarControl.currentControlStyle));
 }
 
 - (void)viewWillTransitionToSize:(CGSize)size
@@ -404,12 +405,12 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 - (void)createChatSessionInputBarControl {
     if (!self.chatSessionInputBarControl && self.conversationType != ConversationType_SYSTEM) {
         self.chatSessionInputBarControl = [[RCChatSessionInputBarControl alloc]
-                                       initWithFrame:CGRectMake(0, self.view.bounds.size.height - RC_ChatSessionInputBar_Height -
+                                       initWithFrame:CGRectMake(0, self.view.bounds.size.height - RC_ChatSessionInputBarHeight(RC_CHAT_INPUT_BAR_STYLE_TOOLBAR) -
                                                                        [self getSafeAreaExtraBottomHeight],
-                                                                self.view.bounds.size.width, RC_ChatSessionInputBar_Height)
+                                                                self.view.bounds.size.width, RC_ChatSessionInputBarHeight(RC_CHAT_INPUT_BAR_STYLE_TOOLBAR))
                                    withContainerView:self.view
                                          controlType:RCChatSessionInputBarControlDefaultType
-                                        controlStyle:RC_CHAT_INPUT_BAR_STYLE_SWITCH_CONTAINER_EXTENTION
+                                        controlStyle:RC_CHAT_INPUT_BAR_STYLE_TOOLBAR
                                     defaultInputType:self.defaultInputType];
 
         self.chatSessionInputBarControl.conversationType = self.conversationType;

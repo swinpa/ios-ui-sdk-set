@@ -17,13 +17,17 @@
 #define TextViewRectY 7
 #define TextViewMaxInputLines 6 //输入框最大行数设置
 #define TextViewMinInputLines 1 //输入框最小行数设置
-@interface RCInputContainerView ()<UITextViewDelegate, RCTextViewDelegate>
+@interface RCInputContainerView ()<UITextViewDelegate, RCTextViewDelegate,XSRCChatSessionInputToolBarDelegate>
 {
     BOOL _hideEmojiButton;
 }
 @property (nonatomic, strong) NSMutableArray *inputContainerSubViewConstraints;
 @property (nonatomic, assign) BOOL textViewBeginEditing;
 @property (nonatomic, assign) RCChatSessionInputBarControlStyle style;
+@property (nonatomic, strong) UIView *inputContainer;
+
+
+
 @end
 @implementation RCInputContainerView
 - (instancetype)initWithFrame:(CGRect)frame {
@@ -230,12 +234,29 @@
 
 #pragma mark - UI
 - (void)setupSubViews {
-    [self addSubview:self.switchButton];
-    [self addSubview:self.inputTextView];
-    [self addSubview:self.recordButton];
-    [self addSubview:self.emojiButton];
-    [self addSubview:self.additionalButton];
-    [self addSubview:self.toolBar];
+    
+    if(self.style == RC_CHAT_INPUT_BAR_STYLE_TOOLBAR) {
+        
+        [self addSubview:self.inputTextView];
+        [self addSubview:self.recordButton];
+        [self addSubview:self.switchButton];
+//        
+//        [self addSubview:self.inputContainer];
+        [self addSubview:self.toolBar];
+    }else{
+        [self addSubview:self.switchButton];
+        [self addSubview:self.inputTextView];
+        [self addSubview:self.recordButton];
+        [self addSubview:self.emojiButton];
+        [self addSubview:self.additionalButton];
+    }
+    
+//    [self addSubview:self.switchButton];
+//    [self addSubview:self.inputTextView];
+//    [self addSubview:self.recordButton];
+//    [self addSubview:self.emojiButton];
+//    [self addSubview:self.additionalButton];
+//    [self addSubview:self.toolBar];
 }
 
 - (void)showInputTextView {
@@ -278,13 +299,13 @@
     if (self.currentBottomBarStatus == KBottomBarRecordStatus) {
         self.inputTextView.hidden = YES;
         self.recordButton.hidden = NO;
-        rectFrame.size.height = RC_ChatSessionInputBar_Height;
+        rectFrame.size.height = RC_ChatSessionInputBarHeight(self.style);
     }else{
         self.recordButton.hidden = YES;
         self.inputTextView.hidden = NO;
 
         self.inputTextView.frame = [self getInputTextViewFrame];
-        rectFrame.size.height = RC_ChatSessionInputBar_Height +
+        rectFrame.size.height = RC_ChatSessionInputBarHeight(self.style) +
                                 (self.inputTextView.frame.size.height - [self getTextViewHeightWithLines:1]);
     }
     
@@ -357,137 +378,205 @@
         [self.additionalButton removeFromSuperview];
         self.additionalButton = nil;
     }
+    if (self.inputContainer) {
+        [self.inputContainer removeFromSuperview];
+        self.inputContainer = nil;
+    }
+    if (self.toolBar) {
+        [self.toolBar removeFromSuperview];
+        self.toolBar = nil;
+    }
 }
 
+
+// 设置输入容器布局方法，根据不同的样式 style 排列按钮
 - (void)setLayoutForInputContainerView:(RCChatSessionInputBarControlStyle)style {
+    // 关闭自动将 AutoresizingMask 转换为 AutoLayout 约束（手动写约束需要关闭）
     self.switchButton.translatesAutoresizingMaskIntoConstraints = NO;
     self.recordButton.translatesAutoresizingMaskIntoConstraints = NO;
     self.emojiButton.translatesAutoresizingMaskIntoConstraints = NO;
     self.additionalButton.translatesAutoresizingMaskIntoConstraints = NO;
     self.inputTextView.translatesAutoresizingMaskIntoConstraints = NO;
     self.toolBar.translatesAutoresizingMaskIntoConstraints = NO;
-
-    self.backgroundColor = [UIColor redColor];
+    self.inputContainer.translatesAutoresizingMaskIntoConstraints = NO;
     
+    // 将子视图绑定成字典，供 VFL（Visual Format Language）使用
     NSDictionary *_bindingViews =
         NSDictionaryOfVariableBindings(_switchButton, _inputTextView, _recordButton, _emojiButton, _additionalButton);
 
+    // 存放水平布局的 VFL 格式字符串
     NSString *format;
 
+    // 根据不同的 style，决定按钮水平排列顺序
     switch (style) {
     case RC_CHAT_INPUT_BAR_STYLE_SWITCH_CONTAINER_EXTENTION:
+        // 顺序：左 -> switchButton -> recordButton -> emojiButton -> additionalButton -> 右
         format = @"H:|-8-[_switchButton(BUTTONWIDTH)]-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_additionalButton(BUTTONWIDTH)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_EXTENTION_CONTAINER_SWITCH:
+        // 顺序：左 -> additionalButton -> recordButton -> emojiButton -> switchButton -> 右
         format = @"H:|-8-[_additionalButton(BUTTONWIDTH)]-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_switchButton(BUTTONWIDTH)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_CONTAINER_SWITCH_EXTENTION:
+        // 顺序：左 -> recordButton -> emojiButton -> switchButton -> additionalButton -> 右
         format = @"H:|-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_switchButton(BUTTONWIDTH)]-8-[_additionalButton(BUTTONWIDTH)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_CONTAINER_EXTENTION_SWITCH:
+        // 顺序：左 -> recordButton -> emojiButton -> additionalButton -> switchButton -> 右
         format = @"H:|-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_additionalButton(BUTTONWIDTH)]-8-[_switchButton(BUTTONWIDTH)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_SWITCH_CONTAINER:
+        // 顺序：左 -> switchButton -> recordButton -> emojiButton -> additionalButton(隐藏) -> 右
         format = @"H:|-8-[_switchButton(BUTTONWIDTH)]-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_additionalButton(0)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_CONTAINER_SWITCH:
+        // 顺序：左 -> recordButton -> emojiButton -> switchButton -> additionalButton(隐藏) -> 右
         format = @"H:|-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_switchButton(BUTTONWIDTH)]-8-[_additionalButton(0)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_EXTENTION_CONTAINER:
+        // 顺序：左 -> additionalButton -> recordButton -> emojiButton -> switchButton(隐藏) -> 右
         format = @"H:|-8-[_additionalButton(BUTTONWIDTH)]-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_switchButton(0)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_CONTAINER_EXTENTION:
+        // 顺序：左 -> recordButton -> emojiButton -> additionalButton -> switchButton(隐藏) -> 右
         format = @"H:|-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_additionalButton(BUTTONWIDTH)]-8-[_switchButton(0)]-8-|";
         break;
     case RC_CHAT_INPUT_BAR_STYLE_CONTAINER:
+        // 顺序：左 -> switchButton(隐藏) -> recordButton -> emojiButton -> additionalButton(隐藏) -> 右
         format = @"H:|-0-[_switchButton(0)]-8-[_recordButton]-8-[_emojiButton(EMOJIBUTTONWIDTH)]-8-[_additionalButton(0)]-8-|";
+        break;
+    case RC_CHAT_INPUT_BAR_STYLE_TOOLBAR:
+        // 顺序：左 -> switchButton(隐藏) -> recordButton -> emojiButton -> additionalButton(隐藏) -> 右
+        format = @"H:|-16-[_recordButton]-8-[_switchButton(BUTTONWIDTH)]-16-|";
         break;
     default:
         break;
     }
 
+    // 如果需要隐藏 emoji 按钮，宽度设为 0，否则宽度为 32
     NSInteger emojiBtnWidth = self.hideEmojiButton ? 0 : 32;
+
+    // 添加水平约束（按钮排列顺序）
     [self.inputContainerSubViewConstraints
         addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:format
                                                                     options:0
-                                                                    metrics:@{@"BUTTONWIDTH":@(32),
-                                                                              @"EMOJIBUTTONWIDTH":@(emojiBtnWidth)}
+                                                                    metrics:@{@"BUTTONWIDTH":@(32), @"EMOJIBUTTONWIDTH":@(emojiBtnWidth)}
                                                                       views:_bindingViews]];
-
-    [self.inputContainerSubViewConstraints
-        addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8.5-[_switchButton(BUTTONWIDTH)]"
-                                                                    options:0
-                                                                    metrics:@{@"BUTTONWIDTH":@(32)}
-                                                                      views:_bindingViews]];
+    // switchButton 的垂直约束：顶部 8.5，高度 32
+    if(self.style == RC_CHAT_INPUT_BAR_STYLE_TOOLBAR){
+        
+        // 让 recordButton 的右边和 inputTextView 右边对齐
+        [self.inputContainerSubViewConstraints addObjectsFromArray:@[
+            [NSLayoutConstraint constraintWithItem:self.switchButton
+                                         attribute:NSLayoutAttributeBottom
+                                         relatedBy:(NSLayoutRelationEqual)
+                                            toItem:self.inputTextView
+                                         attribute:NSLayoutAttributeBottom
+                                        multiplier:1
+                                          constant:-2.83]]];
+    }else{
+        [self.inputContainerSubViewConstraints
+            addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8.5-[_switchButton(BUTTONWIDTH)]"
+                                                                        options:0
+                                                                        metrics:@{@"BUTTONWIDTH":@(32)}
+                                                                          views:_bindingViews]];
+    }
+    // recordButton 的垂直约束：顶部 6，高度 36（稍高于其他按钮）
     [self.inputContainerSubViewConstraints
         addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-6-[_recordButton(36)]"
                                                                     options:0
                                                                     metrics:nil
                                                                       views:_bindingViews]];
 
-    [self.inputContainerSubViewConstraints
-        addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8.5-[_emojiButton(BUTTONWIDTH)]"
-                                                                    options:kNilOptions
-                                                                    metrics:@{@"BUTTONWIDTH":@(32)}
-                                                                      views:_bindingViews]];
+   
+    if(self.style != RC_CHAT_INPUT_BAR_STYLE_TOOLBAR){
+        // emojiButton 的垂直约束：顶部 8.5，高度 32
+        [self.inputContainerSubViewConstraints
+         addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8.5-[_emojiButton(BUTTONWIDTH)]"
+                                                                     options:kNilOptions
+                                                                     metrics:@{@"BUTTONWIDTH":@(32)}
+                                                                       views:_bindingViews]];
+        // additionalButton 的垂直约束：顶部 8.5，高度 32
+        [self.inputContainerSubViewConstraints
+            addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8.5-[_additionalButton(BUTTONWIDTH)]"
+                                                                        options:kNilOptions
+                                                                        metrics:@{@"BUTTONWIDTH":@(32)}
+                                                                          views:_bindingViews]];
+    }
 
-    [self.inputContainerSubViewConstraints
-        addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-8.5-[_additionalButton(BUTTONWIDTH)]"
-                                                                    options:kNilOptions
-                                                                    metrics:@{@"BUTTONWIDTH":@(32)}
-                                                                      views:_bindingViews]];
-
+    
+    
+    // 让 recordButton 的左边和 inputTextView 左边对齐
     [self.inputContainerSubViewConstraints addObjectsFromArray:@[
         [NSLayoutConstraint constraintWithItem:self.recordButton
                                      attribute:NSLayoutAttributeLeft
-                                     relatedBy:NSLayoutRelationEqual
+                                     relatedBy:(NSLayoutRelationEqual)
                                         toItem:self.inputTextView
                                      attribute:NSLayoutAttributeLeft
                                     multiplier:1
-                                      constant:0],
+                                      constant:0]]];
+    
+    // 让 recordButton 的右边和 inputTextView 右边对齐
+    [self.inputContainerSubViewConstraints addObjectsFromArray:@[
         [NSLayoutConstraint constraintWithItem:self.recordButton
                                      attribute:NSLayoutAttributeRight
-                                     relatedBy:NSLayoutRelationEqual
+                                     relatedBy:(NSLayoutRelationEqual)
                                         toItem:self.inputTextView
                                      attribute:NSLayoutAttributeRight
                                     multiplier:1
-                                      constant:0],
+                                      constant:0]]];
+    
+    // 让 recordButton 的顶部和 inputTextView 顶部对齐
+    [self.inputContainerSubViewConstraints addObjectsFromArray:@[
         [NSLayoutConstraint constraintWithItem:self.recordButton
                                      attribute:NSLayoutAttributeTop
-                                     relatedBy:NSLayoutRelationEqual
+                                     relatedBy:(NSLayoutRelationEqual)
                                         toItem:self.inputTextView
                                      attribute:NSLayoutAttributeTop
                                     multiplier:1
-                                      constant:0],
-        [NSLayoutConstraint constraintWithItem:self.inputTextView
-                                     attribute:NSLayoutAttributeBottom
-                                     relatedBy:NSLayoutRelationEqual
-                                        toItem:self
-                                     attribute:NSLayoutAttributeBottom
-                                    multiplier:1
-                                      constant:-6]
-    ]];
-
-    // --- 新增 toolBar 约束 ---
-    NSMutableDictionary *views = [_bindingViews mutableCopy];
-    views[@"_toolBar"] = self.toolBar;
-
-    // 左右对齐父视图
-    [self.inputContainerSubViewConstraints addObjectsFromArray:
-        [NSLayoutConstraint constraintsWithVisualFormat:@"H:|-0-[_toolBar]-0-|"
-                                                options:0
-                                                metrics:nil
-                                                  views:views]];
-
-    // 紧贴 inputTextView 下方，底部贴父视图
-    [self.inputContainerSubViewConstraints addObjectsFromArray:
-        [NSLayoutConstraint constraintsWithVisualFormat:@"V:[_inputTextView]-0-[_toolBar]-0-|"
-                                                options:0
-                                                metrics:nil
-                                                  views:views]];
-
+                                      constant:0]]];
+    if(style == RC_CHAT_INPUT_BAR_STYLE_TOOLBAR) {
+        // 让 inputTextView 的底部距离父视图底部 6
+        [self.inputContainerSubViewConstraints addObjectsFromArray:@[
+            [NSLayoutConstraint constraintWithItem:self.inputTextView
+                                         attribute:NSLayoutAttributeBottom
+                                         relatedBy:(NSLayoutRelationEqual)
+                                            toItem:self.toolBar
+                                         attribute:NSLayoutAttributeTop
+                                        multiplier:1
+                                          constant:-6]]];
+        
+        // 添加约束
+        [NSLayoutConstraint activateConstraints:@[
+            // toolBar 左边与父视图左边对齐
+            [self.toolBar.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:0],
+            
+            // toolBar 右边与父视图右边对齐
+            [self.toolBar.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:0],
+            
+            // toolBar 顶部距离 inputTextView 底部 10
+            [self.toolBar.topAnchor constraintEqualToAnchor:self.inputTextView.bottomAnchor constant:10],
+            
+            // toolBar 高度固定 48.0
+            [self.toolBar.heightAnchor constraintEqualToConstant:48.0],
+            
+            // toolBar 底部与父视图底部对齐
+            [self.toolBar.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:0]
+        ]];
+        
+    }else{
+        [self.inputContainerSubViewConstraints addObjectsFromArray:@[
+            [NSLayoutConstraint constraintWithItem:self.inputTextView
+                                         attribute:NSLayoutAttributeBottom
+                                         relatedBy:(NSLayoutRelationEqual)
+                                            toItem:self
+                                         attribute:NSLayoutAttributeTop
+                                        multiplier:1
+                                          constant:-6]]];
+    }
+    // 将所有约束一次性加到父视图
     [self addConstraints:self.inputContainerSubViewConstraints];
-
+    // 通知系统更新约束并刷新布局
     [self updateConstraintsIfNeeded];
     [self layoutIfNeeded];
 }
@@ -588,9 +677,18 @@
     return _additionalButton;
 }
 
+- (UIView *)inputContainer {
+    if (!_inputContainer) {
+        _inputContainer = [[UIView alloc] initWithFrame:CGRectZero];
+        _inputContainer.backgroundColor = HEXCOLOR(0xF7F7F7);
+    }
+    return _inputContainer;
+}
+
 - (XSRCChatSessionInputToolBar *)toolBar {
     if (!_toolBar) {
         _toolBar = [[XSRCChatSessionInputToolBar alloc] initWithFrame:CGRectZero];
+        _toolBar.delegate = self;
     }
     return _toolBar;
 }
@@ -611,4 +709,23 @@
     }
     _maxInputLines = maxInputLines;
 }
+
+- (void)handleButtonEvent:(UIButton*)button event:(XSRCChatSessionInputToolBarEvent)event {
+    switch (event) {
+        case XSRCChatSessionInputToolBarEventAlbum:
+            
+            break;
+        case XSRCChatSessionInputToolBarEventCamera:
+            
+            break;
+        case XSRCChatSessionInputToolBarEventGift:
+            
+            break;
+        case XSRCChatSessionInputToolBarEventEmoji:
+            [self didTouchEmojiDown:button];
+            break;
+    }
+}
+
+
 @end
