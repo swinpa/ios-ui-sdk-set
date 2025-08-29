@@ -288,10 +288,10 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
                     strongSelf.statusContentView.frame = statusFrame;
                     strongSelf.receiptStatusLabel.frame = CGRectMake(0 , statusFrame.size.height - 12,statusFrame.size.width, 12);
                     if (strongSelf.model.conversationType == ConversationType_PRIVATE || strongSelf.model.conversationType == ConversationType_Encrypted) {
-                        strongSelf.receiptView.frame = CGRectMake(0, statusFrame.size.height - 16, 16, 16);
+                        strongSelf.receiptView.frame = CGRectMake(0, (statusFrame.size.height - 16)/2.0, 16, 16);
                         [strongSelf.receiptView setImage:RCResourceImage(@"message_read_status") forState:UIControlStateNormal];
                     } else {
-                        strongSelf.receiptView.frame = CGRectMake(0, statusFrame.size.height - 16, 14, 14);
+                        strongSelf.receiptView.frame = CGRectMake(0, (statusFrame.size.height - 14)/2.0, 14, 14);
                         [strongSelf.receiptView setImage:RCResourceImage(@"receipt") forState:UIControlStateNormal];
                     }
                     strongSelf.messageFailedStatusView.frame = CGRectMake(0, (statusFrame.size.height-16)/2, 16, 16);
@@ -307,10 +307,10 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
                     strongSelf.statusContentView.frame = statusFrame;
                     strongSelf.receiptStatusLabel.frame = CGRectMake(0 , statusFrame.size.height - 12,statusFrame.size.width, 12);
                     if (strongSelf.model.conversationType == ConversationType_PRIVATE || strongSelf.model.conversationType == ConversationType_Encrypted) {
-                        strongSelf.receiptView.frame = CGRectMake(StatusContentViewWidth - 16, statusFrame.size.height - 16, 16, 16);
+                        strongSelf.receiptView.frame = CGRectMake(StatusContentViewWidth - 16, (statusFrame.size.height - 16)/2.0, 16, 16);
                         [strongSelf.receiptView setImage:RCResourceImage(@"message_read_status") forState:UIControlStateNormal];
                     } else {
-                        strongSelf.receiptView.frame = CGRectMake(StatusContentViewWidth - 14, statusFrame.size.height - 16, 14, 14);
+                        strongSelf.receiptView.frame = CGRectMake(StatusContentViewWidth - 14, (statusFrame.size.height - 14)/2.0, 14, 14);
                         [strongSelf.receiptView setImage:RCResourceImage(@"receipt") forState:UIControlStateNormal];
                     }
                     strongSelf.messageFailedStatusView.frame = CGRectMake(statusFrame.size.width-16, (statusFrame.size.height-16)/2, 16, 16);
