@@ -98,7 +98,7 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 }
 
 - (void)rcinit {
-    self.backgroundColor = RCDYCOLOR(0xF5F6F9, 0x1c1c1c);
+    self.backgroundColor = [UIColor whiteColor];//RCDYCOLOR(0xF5F6F9, 0x1c1c1c);
     self.keyboardFrame = CGRectZero;
     self.isNew = 0;
     [self addBottomAreaView];
@@ -434,6 +434,21 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
     } else {
         [self animationLayoutBottomBarWithStatus:KBottomBarPluginStatus animated:YES];
     }
+}
+
+
+- (void)inputContainerViewAlbumButtonClicked:(RCInputContainerView *)inputContainerView {
+    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
+        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    }
+}
+- (void)inputContainerViewCameraButtonClicked:(RCInputContainerView *)inputContainerView {
+    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
+        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:PLUGIN_BOARD_ITEM_CAMERA_TAG];
+    }
+}
+- (void)inputContainerViewGiftButtonClicked:(RCInputContainerView *)inputContainerView {
+    
 }
 
 - (void)inputContainerView:(RCInputContainerView *)inputContainerView forControlEvents:(UIControlEvents)controlEvents {
@@ -1578,7 +1593,7 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
     if (!_topLineLayer) {
         CALayer *layer = [CALayer layer];
         layer.frame = CGRectMake(0, 0, self.frame.size.width, 0.5);
-        layer.backgroundColor = RCDYCOLOR(0xe3e5e6, 0x2f2f2f).CGColor;
+        layer.backgroundColor = [UIColor clearColor].CGColor;//RCDYCOLOR(0xe3e5e6, 0x2f2f2f).CGColor;
         _topLineLayer = layer;
     }
     return _topLineLayer;
@@ -1589,7 +1604,7 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
     if (bottom > 0) {
         UIView * bottomAreaView= [[UIView alloc] initWithFrame:CGRectMake(0, self.containerView.bounds.size.height - bottom,
                                                                           self.containerView.bounds.size.width, bottom)];
-        bottomAreaView.backgroundColor = RCDYCOLOR(0xF8F8F8, 0x0b0b0c);
+        bottomAreaView.backgroundColor = [UIColor whiteColor];//RCDYCOLOR(0xF8F8F8, 0x0b0b0c);
         self.safeAreaView = bottomAreaView;
         [self.containerView addSubview:bottomAreaView];
     }

@@ -70,6 +70,10 @@
 
 - (void)inputContainerViewAdditionalButtonClicked:(RCInputContainerView *)inputContainerView;
 
+- (void)inputContainerViewAlbumButtonClicked:(RCInputContainerView *)inputContainerView;
+- (void)inputContainerViewCameraButtonClicked:(RCInputContainerView *)inputContainerView;
+- (void)inputContainerViewGiftButtonClicked:(RCInputContainerView *)inputContainerView;
+
 - (void)inputContainerView:(RCInputContainerView *)inputContainerView forControlEvents:(UIControlEvents)controlEvents;
 
 - (void)inputContainerView:(RCInputContainerView *)inputContainerView didChangeFrame:(CGRect)frame;

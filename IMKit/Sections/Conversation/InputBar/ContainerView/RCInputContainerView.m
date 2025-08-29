@@ -456,11 +456,16 @@
     // 如果需要隐藏 emoji 按钮，宽度设为 0，否则宽度为 32
     NSInteger emojiBtnWidth = self.hideEmojiButton ? 0 : 32;
 
+    CGFloat BUTTONWIDTH = 32;
+    if (self.style == RC_CHAT_INPUT_BAR_STYLE_TOOLBAR) {
+        BUTTONWIDTH = 36;
+    }
+    
     // 添加水平约束（按钮排列顺序）
     [self.inputContainerSubViewConstraints
         addObjectsFromArray:[NSLayoutConstraint constraintsWithVisualFormat:format
                                                                     options:0
-                                                                    metrics:@{@"BUTTONWIDTH":@(32), @"EMOJIBUTTONWIDTH":@(emojiBtnWidth)}
+                                                                    metrics:@{@"BUTTONWIDTH":@(BUTTONWIDTH), @"EMOJIBUTTONWIDTH":@(emojiBtnWidth)}
                                                                       views:_bindingViews]];
     // switchButton 的垂直约束：顶部 8.5，高度 32
     if(self.style == RC_CHAT_INPUT_BAR_STYLE_TOOLBAR){
@@ -606,14 +611,16 @@
         textEdge.right = 5;
         _inputTextView.textContainerInset = textEdge;
         [_inputTextView setExclusiveTouch:YES];
-        [_inputTextView setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x000000) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
+//        [_inputTextView setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x999999) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
+        [_inputTextView setTextColor:HEXCOLOR(0x999999)];
         [_inputTextView setFont:[[RCKitConfig defaultConfig].font fontOfSecondLevel]];
         [_inputTextView setReturnKeyType:UIReturnKeySend];
-        _inputTextView.backgroundColor = RCDYCOLOR(0xffffff, 0x2d2d2d);
+        _inputTextView.backgroundColor = HEXCOLOR(0xF7F7F7);//RCDYCOLOR(0xffffff, 0x2d2d2d);
         _inputTextView.enablesReturnKeyAutomatically = YES;
         _inputTextView.layer.cornerRadius = 8;
         _inputTextView.layer.masksToBounds = YES;
         [_inputTextView setAccessibilityLabel:@"chat_input_textView"];
+        _inputTextView.tintColor = HEXCOLOR(0x11D8C3);
     }
     return _inputTextView;
 }
@@ -627,8 +634,8 @@
         _recordButton.titleLabel.font = [[RCKitConfig defaultConfig].font fontOfGuideLevel];
         [_recordButton setTitle:RCLocalizedString(@"release_to_send_title")
                        forState:UIControlStateHighlighted];
-        [_recordButton setTitleColor:RCDYCOLOR(0x000000, 0xffffff) forState:UIControlStateNormal];
-        _recordButton.backgroundColor = RCDYCOLOR(0xffffff,0x2d2d2d);
+        [_recordButton setTitleColor:RCDYCOLOR(0x999999, 0xffffff) forState:UIControlStateNormal];
+        _recordButton.backgroundColor = HEXCOLOR(0xF7F7F7);//RCDYCOLOR(0xffffff,0x2d2d2d);
         [_recordButton addTarget:self
                           action:@selector(voiceRecordButtonTouchDown:)
                 forControlEvents:UIControlEventTouchDown];

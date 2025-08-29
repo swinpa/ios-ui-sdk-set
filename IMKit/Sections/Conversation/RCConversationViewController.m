@@ -417,6 +417,7 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
         self.chatSessionInputBarControl.targetId = self.targetId;
         self.chatSessionInputBarControl.delegate = self;
         self.chatSessionInputBarControl.dataSource = self;
+        
         [self.view addSubview:self.chatSessionInputBarControl];
     }
 }
