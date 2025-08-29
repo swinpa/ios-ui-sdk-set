@@ -720,13 +720,19 @@
 - (void)handleButtonEvent:(UIButton*)button event:(XSRCChatSessionInputToolBarEvent)event {
     switch (event) {
         case XSRCChatSessionInputToolBarEventAlbum:
-            
+            if (self.delegate && [self.delegate respondsToSelector:@selector(inputContainerViewAlbumButtonClicked:)]) {
+                [self.delegate inputContainerViewAlbumButtonClicked:self];
+            }
             break;
         case XSRCChatSessionInputToolBarEventCamera:
-            
+            if (self.delegate && [self.delegate respondsToSelector:@selector(inputContainerViewCameraButtonClicked:)]) {
+                [self.delegate inputContainerViewCameraButtonClicked:self];
+            }
             break;
         case XSRCChatSessionInputToolBarEventGift:
-            
+            if (self.delegate && [self.delegate respondsToSelector:@selector(inputContainerViewGiftButtonClicked:)]) {
+                [self.delegate inputContainerViewGiftButtonClicked:self];
+            }
             break;
         case XSRCChatSessionInputToolBarEventEmoji:
             [self didTouchEmojiDown:button];
