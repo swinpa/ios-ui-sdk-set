@@ -8,6 +8,7 @@
 
 #import "RCAssetHelper.h"
 #import "RCBaseCollectionViewController.h"
+
 @class RCAssetModel;
 @interface RCPhotosPickerController : RCBaseCollectionViewController
 @property (nonatomic, strong) NSMutableArray<RCAssetModel *> *assetArray;

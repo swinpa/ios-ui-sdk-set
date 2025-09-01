@@ -849,8 +849,8 @@
     RCButton *backBtn = [RCButton buttonWithType:UIButtonTypeCustom];
     backBtn.frame = CGRectMake(0, 0, width, image.size.height);
     [backBtn setImage:[RCSemanticContext imageflippedForRTL:image] forState:UIControlStateNormal];
-    [backBtn setTitle:title forState:UIControlStateNormal];
-    [backBtn setTitleColor:RCKitConfigCenter.ui.globalNavigationBarTintColor forState:UIControlStateNormal];
+//    [backBtn setTitle:title forState:UIControlStateNormal];
+//    [backBtn setTitleColor:RCKitConfigCenter.ui.globalNavigationBarTintColor forState:UIControlStateNormal];
     [backBtn addTarget:target action:action forControlEvents:UIControlEventTouchUpInside];
     if([RCKitUtility isRTL]){
         backBtn.semanticContentAttribute = UISemanticContentAttributeForceRightToLeft;

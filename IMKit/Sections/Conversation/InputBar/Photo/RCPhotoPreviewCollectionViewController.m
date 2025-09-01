@@ -76,6 +76,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     [self.collectionView registerClass:RCVideoPreviewCell.class forCellWithReuseIdentifier:videoCellReuseIdentifier];
     [self creatTopView];
     [self createBottomView];
+    [self isSelectedButtonAction:self.selectedButton];
 }
 
 - (BOOL)prefersStatusBarHidden {

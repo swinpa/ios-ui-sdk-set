@@ -354,6 +354,124 @@ progressHandler:(void (^)(double progress, NSError *error, BOOL *stop, NSDiction
     }];
 }
 
+// mediaType：0 - 所有，1 - 图片，2 - 视频
+- (void)getAlbumsFromSystem:(NSInteger)mediaType completion:(void (^)(NSArray *assetGroup))completion {
+    [self requestAuthorization:^(PHAuthorizationStatus status) {
+        if ([PHPhotoLibrary authorizationStatus] != PHAuthorizationStatusAuthorized) {
+            return completion(nil);
+        }
+        PHFetchOptions *option = [[PHFetchOptions alloc] init];
+        option.sortDescriptors = @[ [NSSortDescriptor sortDescriptorWithKey:@"creationDate" ascending:YES] ];
+        NSMutableArray *smartAlbumSubtypes = [NSMutableArray arrayWithArray: @[@(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                                                               @(PHAssetCollectionSubtypeSmartAlbumRecentlyAdded),
+                                                                               @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                                                             @(PHAssetCollectionSubtypeSmartAlbumFavorites),
+                                                                               @(PHAssetCollectionSubtypeSmartAlbumSlomoVideos)]];
+        NSMutableArray *albums = [NSMutableArray array];
+        // For iOS 9, We need to show ScreenShots Album && SelfPortraits Album
+        if (RC_IOS_SYSTEM_VERSION_GREATER_THAN_OR_EQUAL_TO(@"9.0")) {
+            [smartAlbumSubtypes addObject:@(PHAssetCollectionSubtypeSmartAlbumScreenshots)];
+            [smartAlbumSubtypes addObject:@(PHAssetCollectionSubtypeSmartAlbumSelfPortraits)];
+            [smartAlbumSubtypes addObject:@(PHAssetCollectionSubtypeSmartAlbumLivePhotos)];
+        }
+        
+        for (NSNumber *typs in smartAlbumSubtypes) {
+            PHFetchResult *smartAlbums =
+            [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeSmartAlbum
+                                                     subtype:[typs integerValue]
+                                                     options:nil];
+            if (smartAlbums) {
+                [albums addObject:smartAlbums];
+            }
+        }
+
+        NSArray *mySubTypes = @[@(PHAssetCollectionSubtypeAlbumRegular),@(PHAssetCollectionSubtypeAlbumSyncedAlbum)];
+        for (NSNumber *typs in mySubTypes) {
+            PHFetchResult *album =
+            [PHAssetCollection fetchAssetCollectionsWithType:PHAssetCollectionTypeAlbum
+                                                     subtype:[typs integerValue]
+                                                     options:nil];
+            if (album) {
+                [albums addObject:album];
+            }
+        }
+        dispatch_async(__rc__photo__working_queue, ^{
+            NSMutableArray *albumGroups = [NSMutableArray array];
+            for (PHFetchResult *fetchResult in albums) {
+                for (PHAssetCollection *collection in fetchResult) {
+                    PHFetchResult *fetchResult = [PHAsset fetchAssetsInAssetCollection:collection options:nil];
+                    if (fetchResult.count < 1)
+                        continue;
+                    PHAssetCollectionSubtype subtype = collection.assetCollectionSubtype;
+                    // '最近删除' 知道值为（1000000201）但没找到对应的TypedefName
+                    if (subtype == 1000000201 ) continue;
+                    
+                    if(mediaType == 0){
+                        // 是否开启包含媒体消息 去掉慢动作 视频 延时摄影
+                        if (!NSClassFromString(@"RCSightCapturer")) {
+                            if (subtype == PHAssetCollectionSubtypeSmartAlbumVideos) continue;
+                        }
+                        
+                        RCAlbumModel *albumModel = [RCAlbumModel modelWithAsset:fetchResult
+                                                                           name:collection.localizedTitle
+                                                                          count:fetchResult.count];
+                        
+                        if (subtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
+                            [albumGroups insertObject:albumModel atIndex:0];
+                        } else if (subtype == PHAssetCollectionSubtypeAlbumMyPhotoStream) {
+                            if (albumGroups.count > 0) {
+                                [albumGroups insertObject:albumModel atIndex:1];
+                            } else {
+                                [albumGroups insertObject:albumModel atIndex:0];
+                            }
+                        } else {
+                            [albumGroups addObject:albumModel];
+                        }
+                    }else if(mediaType == 1) {
+                        if (subtype == PHAssetCollectionSubtypeSmartAlbumVideos) continue;
+                        
+                        RCAlbumModel *albumModel = [RCAlbumModel modelWithAsset:fetchResult
+                                                                           name:collection.localizedTitle
+                                                                          count:fetchResult.count];
+                        
+                        if (subtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
+                            [albumGroups insertObject:albumModel atIndex:0];
+                        } else if (subtype == PHAssetCollectionSubtypeAlbumMyPhotoStream) {
+                            if (albumGroups.count > 0) {
+                                [albumGroups insertObject:albumModel atIndex:1];
+                            } else {
+                                [albumGroups insertObject:albumModel atIndex:0];
+                            }
+                        } else {
+                            [albumGroups addObject:albumModel];
+                        }
+                    }else if(mediaType == 2) {
+                        if (subtype != PHAssetCollectionSubtypeSmartAlbumVideos) continue;
+                        
+                        RCAlbumModel *albumModel = [RCAlbumModel modelWithAsset:fetchResult
+                                                                           name:collection.localizedTitle
+                                                                          count:fetchResult.count];
+                        
+                        if (subtype == PHAssetCollectionSubtypeSmartAlbumUserLibrary) {
+                            [albumGroups insertObject:albumModel atIndex:0];
+                        } else if (subtype == PHAssetCollectionSubtypeAlbumMyPhotoStream) {
+                            if (albumGroups.count > 0) {
+                                [albumGroups insertObject:albumModel atIndex:1];
+                            } else {
+                                [albumGroups insertObject:albumModel atIndex:0];
+                            }
+                        } else {
+                            [albumGroups addObject:albumModel];
+                        }
+                    }
+                }
+            }
+            return completion(albumGroups);
+        });
+    }];
+}
+
+
 + (void)savePhotosAlbumWithImage:(UIImage *)image authorizationStatusBlock:(nullable dispatch_block_t)authorizationStatusBlock resultBlock:(nullable void (^)(BOOL success))resultBlock {
     PHAuthorizationStatus status = [PHPhotoLibrary authorizationStatus];
     if (PHAuthorizationStatusRestricted == status || PHAuthorizationStatusDenied == status) {

@@ -246,6 +246,12 @@ static NSString *const reuseIdentifier = @"Cell";
         return;
     }
     
+    if (selectModel.mediaType == PHAssetMediaTypeVideo && NSClassFromString(@"RCSightCapturer")) {
+        if (selectModel.duration > 60*2) {
+            return;
+        }
+    }
+    
     RCPhotoPreviewCollectionViewController *previewController =
     [RCPhotoPreviewCollectionViewController imagePickerViewController];
     previewController.isFull = self.isFull;

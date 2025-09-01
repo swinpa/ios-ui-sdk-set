@@ -171,8 +171,16 @@ static NSString *const cellReuseIdentifier = @"cell";
         [self.tableView reloadData];
     } else {
         [RCKitUtility showProgressViewFor:self.tableView text:nil animated:YES];
+        
+        NSInteger mediatype = 0;
+        if(self.type == RCAlbumTypePhotos) {
+            mediatype = 1;
+        }else if(self.type == RCAlbumTypeVideos) {
+            mediatype = 2;
+        }
+        
         [sharedAssetHelper
-            getAlbumsFromSystem:^(NSArray *assetGroup) {
+         getAlbumsFromSystem:mediatype completion:^(NSArray *assetGroup) {
                               if (assetGroup) {
                                   self.libraryList = assetGroup;
                               }

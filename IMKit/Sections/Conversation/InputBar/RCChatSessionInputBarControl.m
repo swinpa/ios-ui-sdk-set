@@ -438,14 +438,26 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 
 
 - (void)inputContainerViewAlbumButtonClicked:(RCInputContainerView *)inputContainerView {
-    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
-        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
-    }
+//    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
+//        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_ALBUM_TAG];
+//    }
+    RCKitConfigCenter.message.isMediaSelectorContainVideo = NO;
+    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+    albumListVC.delegate = self;
+    albumListVC.type = RCAlbumTypePhotos;
+    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
 }
 - (void)inputContainerViewCameraButtonClicked:(RCInputContainerView *)inputContainerView {
-    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
-        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:PLUGIN_BOARD_ITEM_CAMERA_TAG];
-    }
+//    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
+//        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_CAMERA_TAG];
+//    }
+    RCKitConfigCenter.message.isMediaSelectorContainVideo = YES;
+    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+    albumListVC.delegate = self;
+    albumListVC.type = RCAlbumTypeVideos;
+    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
 }
 - (void)inputContainerViewGiftButtonClicked:(RCInputContainerView *)inputContainerView {
     

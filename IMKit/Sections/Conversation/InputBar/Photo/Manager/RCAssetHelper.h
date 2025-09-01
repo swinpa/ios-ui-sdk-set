@@ -40,6 +40,9 @@ NS_ASSUME_NONNULL_BEGIN
  *  获得相册/相册数组
  */
 - (void)getAlbumsFromSystem:(void (^)(NSArray *assetGroup))result;
+
+- (void)getAlbumsFromSystem:(NSInteger)mediaType completion:(void (^)(NSArray *assetGroup))result;
+
 /**
  *  获取图片缩略图
  *

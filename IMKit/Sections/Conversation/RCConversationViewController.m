@@ -1592,6 +1592,12 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
     case PLUGIN_BOARD_ITEM_ALBUM_TAG: {
         [self openSystemAlbum];
     } break;
+    case TOOLBAR_ITEM_ALBUM_TAG: {
+        [self openSystemAlbum];
+    } break;
+    case TOOLBAR_ITEM_CAMERA_TAG: {
+        [self openSystemAlbum];
+    } break;
     case PLUGIN_BOARD_ITEM_CAMERA_TAG: {
         [self openSystemCamera];
     } break;

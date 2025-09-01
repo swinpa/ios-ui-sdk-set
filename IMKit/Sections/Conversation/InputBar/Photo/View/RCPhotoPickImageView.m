@@ -21,6 +21,7 @@ typedef NS_ENUM(NSUInteger, RCPotoPickStatus) {
 @interface RCPhotoPickImageView()
 
 @property (nonatomic, strong) UIView *maskCoverView;
+@property (nonatomic, strong) UIView *unableSelectMaskView;
 @property (nonatomic, strong) UIView *typeBackgroundView;
 
 @property (nonatomic, strong) UILabel *gifLabel;
@@ -35,6 +36,9 @@ typedef NS_ENUM(NSUInteger, RCPotoPickStatus) {
     if (model.mediaType == PHAssetMediaTypeVideo && NSClassFromString(@"RCSightCapturer")) {
         [self showSightTypeView];
         self.durationLabel.text = model.durationText;
+        if (model.duration > 60*2) {
+            self.unableSelectMaskView.hidden = NO;
+        }
     } else if([[model.asset valueForKey:@"uniformTypeIdentifier"]
                isEqualToString:(__bridge NSString *)kUTTypeGIF]){
         [self showGifTypeView];
@@ -87,6 +91,15 @@ typedef NS_ENUM(NSUInteger, RCPotoPickStatus) {
         _maskCoverView = view;
     }
     return _maskCoverView;
+}
+- (UIView *)unableSelectMaskView{
+    if (!_unableSelectMaskView) {
+        UIView *view = [[UIView alloc] initWithFrame:self.bounds];
+        view.backgroundColor = RCMASKCOLOR(0x000000, 0.7);
+        [self addSubview:view];
+        _unableSelectMaskView = view;
+    }
+    return _unableSelectMaskView;
 }
 
 - (UIView *)typeBackgroundView{
