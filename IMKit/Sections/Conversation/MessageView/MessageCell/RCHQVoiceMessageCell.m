@@ -286,7 +286,7 @@ static RCMessageDirection hq_previousMessageDirection;
     self.messageContentView.contentSize = CGSizeMake(audioBubbleWidth, voiceHeight);
     if ([RCKitUtility isRTL]) {
         if (self.model.messageDirection == MessageDirection_SEND) {
-            self.playVoiceView.image = RCResourceImage(@"from_voice_3");
+            self.playVoiceView.image = RCResourceImage(@"from_voice_play");
             [self.voiceDurationLabel setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
             self.voiceDurationLabel.textAlignment = NSTextAlignmentLeft;
             self.playVoiceView.frame = CGRectMake(12, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
@@ -296,7 +296,7 @@ static RCMessageDirection hq_previousMessageDirection;
             self.playVoiceView.frame = CGRectMake(self.messageContentView.frame.size.width-12-Play_Voice_View_Width, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
             self.voiceDurationLabel.frame = CGRectMake(12, 0, CGRectGetMinX(self.playVoiceView.frame) - 20, voiceHeight);
             [self.voiceDurationLabel setTextColor:RCDYCOLOR(0x111f2c, 0x040A0F)];
-            self.playVoiceView.image = RCResourceImage(@"to_voice_3");
+            self.playVoiceView.image = RCResourceImage(@"to_voice_play");
         }
     } else {
         
@@ -305,9 +305,9 @@ static RCMessageDirection hq_previousMessageDirection;
             self.playVoiceView.frame = CGRectMake(self.messageContentView.frame.size.width-12-Play_Voice_View_Width, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
             self.voiceDurationLabel.frame = CGRectMake(12, 0, CGRectGetMinX(self.playVoiceView.frame) - 20, voiceHeight);
             [self.voiceDurationLabel setTextColor:RCDYCOLOR(0x111f2c, 0x040A0F)];
-            self.playVoiceView.image = RCResourceImage(@"to_voice_3");
+            self.playVoiceView.image = RCResourceImage(@"to_voice_play");
         }else{
-            self.playVoiceView.image = RCResourceImage(@"from_voice_3");
+            self.playVoiceView.image = RCResourceImage(@"from_voice_play");
             [self.voiceDurationLabel setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
             self.voiceDurationLabel.textAlignment = NSTextAlignmentLeft;
             self.playVoiceView.frame = CGRectMake(12, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
@@ -622,9 +622,9 @@ static RCMessageDirection hq_previousMessageDirection;
     }
     UIImage *image;
     if (MessageDirection_SEND == self.model.messageDirection) {
-        image = RCResourceImage(@"to_voice_3");
+        image = RCResourceImage(@"to_voice_play");
     } else {
-        image = RCResourceImage(@"from_voice_3");
+        image = RCResourceImage(@"from_voice_play");
     }
     if ([RCKitUtility isRTL]) {
         self.playVoiceView.image = [image imageFlippedForRightToLeftLayoutDirection];
@@ -643,9 +643,9 @@ static RCMessageDirection hq_previousMessageDirection;
          */
         if (hq_previousPlayVoiceImageView) {
             if (MessageDirection_SEND == self.model.messageDirection) {
-                hq_previousPlayVoiceImageView.image = RCResourceImage(@"to_voice_3");
+                hq_previousPlayVoiceImageView.image = RCResourceImage(@"to_voice_play");
             } else {
-                hq_previousPlayVoiceImageView.image = RCResourceImage(@"from_voice_3");
+                hq_previousPlayVoiceImageView.image = RCResourceImage(@"from_voice_play");
             }
             hq_previousPlayVoiceImageView = nil;
             hq_previousMessageDirection = 0;

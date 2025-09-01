@@ -393,6 +393,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     
     [stateButton addTarget:self action:@selector(isSelectedButtonAction:) forControlEvents:UIControlEventTouchUpInside];
     [_topView addSubview:self.selectedButton = stateButton];
+    stateButton.hidden = YES;
 }
 
 - (void)createBottomView {
@@ -405,14 +406,19 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     // add button for bottom bar
     _sendButton = [[RCBaseButton alloc] init];
     [_sendButton setTitle:RCLocalizedString(@"Send") forState:UIControlStateNormal];
-    [_sendButton setTitleColor:RCResourceColor(@"photoPreview_send_disable", @"0x959595")
+    [_sendButton setTitleColor:RCResourceColor(@"photoPreview_send_disable", @"0xffffff")
                       forState:UIControlStateDisabled];
+    
+    
+    
+    _sendButton.titleLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
     [_sendButton addTarget:self action:@selector(sendImageMessageButton:) forControlEvents:UIControlEventTouchUpInside];
     [_bottomView addSubview:_sendButton];
     [self _updateBottomSendImageCountButton];
     _fullButton = [[RCBaseButton alloc] init];
     [_fullButton setTitle:[NSString stringWithFormat: @"%@", RCLocalizedString(@"Full_Image")]
                  forState:UIControlStateNormal];
+    _fullButton.titleLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
     _fullButton.contentMode = UIViewContentModeLeft;
     _fullButton.imageView.contentMode = UIViewContentModeScaleAspectFit;
     [_fullButton addTarget:self action:@selector(fullBtnCliced:) forControlEvents:UIControlEventTouchUpInside];
@@ -432,18 +438,18 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     
     if ([RCKitUtility isRTL]) {
         [_bottomView
-            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_fullButton(30)]"
+            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_fullButton(22)]"
                                                                    options:kNilOptions
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_fullButton)]];
 
         [_bottomView
-            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_sendButton(30)]"
+            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_sendButton(22)]"
                                                                    options:kNilOptions
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_sendButton)]];
         [_bottomView
-            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_editButton(30)]"
+            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_editButton(22]"
                                                                    options:kNilOptions
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_editButton)]];
@@ -460,7 +466,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                    toItem:_bottomView
                                                                 attribute:NSLayoutAttributeRight
                                                                multiplier:1
-                                                                 constant:-10]];
+                                                                 constant:-16]];
 
         [_bottomView addConstraint:[NSLayoutConstraint constraintWithItem:_sendButton
                                                                 attribute:NSLayoutAttributeLeft
@@ -468,7 +474,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                    toItem:_bottomView
                                                                 attribute:NSLayoutAttributeLeft
                                                                multiplier:1
-                                                                 constant:10]];
+                                                                 constant:28]];
 
         [_bottomView addConstraint:[NSLayoutConstraint constraintWithItem:_editButton
                                                                 attribute:NSLayoutAttributeCenterX
@@ -479,18 +485,18 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                  constant:0]];
     } else {
         [_bottomView
-            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_sendButton(30)]"
+            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_sendButton(22)]"
                                                                    options:kNilOptions
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_sendButton)]];
 
         [_bottomView
-            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_fullButton(30)]"
+            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_fullButton(22)]"
                                                                    options:kNilOptions
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_fullButton)]];
         [_bottomView
-            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_editButton(30)]"
+            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_editButton(22)]"
                                                                    options:kNilOptions
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_editButton)]];
@@ -507,7 +513,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                    toItem:_bottomView
                                                                 attribute:NSLayoutAttributeRight
                                                                multiplier:1
-                                                                 constant:-10]];
+                                                                 constant:-28]];
 
         [_bottomView addConstraint:[NSLayoutConstraint constraintWithItem:_fullButton
                                                                 attribute:NSLayoutAttributeLeft
@@ -526,9 +532,13 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                  constant:0]];
     }
 
-    [_sendButton setTitleColor:RCResourceColor(@"photoPreview_send_normal", @"0x0099ff")
+    [_sendButton setTitleColor:RCResourceColor(@"photoPreview_send_normal", @"0xffffff")
                       forState:UIControlStateNormal];
-    [_fullButton setTitleColor:RCResourceColor(@"photoPreview_original_normal_text", @"0x999999")
+    
+    [_sendButton setTitleColor:[UIColor whiteColor]
+                      forState:UIControlStateNormal];
+    
+    [_fullButton setTitleColor:RCResourceColor(@"photoPreview_original_normal_text", @"0xffffff")
                       forState:UIControlStateNormal];
     [_fullButton setTitleColor:RCResourceColor(@"photoPreview_original_selected_text", @"0xffffff")
                       forState:UIControlStateSelected];
@@ -623,11 +633,12 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.selectedArr.count && self.bottomView) {
             self.sendButton.enabled = YES;
-            if ([RCKitUtility isRTL]) {
-                [self.sendButton setTitle:[NSString stringWithFormat:@"(%lu) %@", (unsigned long)self.selectedArr.count, RCLocalizedString(@"Send")] forState:(UIControlStateNormal)];
-            } else {
-                [self.sendButton setTitle:[NSString stringWithFormat:@"%@ (%lu)",RCLocalizedString(@"Send"), (unsigned long)self.selectedArr.count] forState:(UIControlStateNormal)];
-            }
+            [self.sendButton setTitle:RCLocalizedString(@"Send") forState:(UIControlStateNormal)];
+//            if ([RCKitUtility isRTL]) {
+//                [self.sendButton setTitle:[NSString stringWithFormat:@"(%lu) %@", (unsigned long)self.selectedArr.count, RCLocalizedString(@"Send")] forState:(UIControlStateNormal)];
+//            } else {
+//                [self.sendButton setTitle:[NSString stringWithFormat:@"%@ (%lu)",RCLocalizedString(@"Send"), (unsigned long)self.selectedArr.count] forState:(UIControlStateNormal)];
+//            }
         } else {
             self.sendButton.enabled = NO;
             [self.sendButton setTitle:RCLocalizedString(@"Send") forState:(UIControlStateNormal)];

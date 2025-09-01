@@ -35,6 +35,7 @@ static NSString *const cellReuseIdentifier = @"cell";
     self = [super init];
     if (self) {
         self.libraryList = [NSMutableArray new];
+        self.type = RCAlbumTypeAll;
     }
     return self;
 }
@@ -46,6 +47,13 @@ static NSString *const cellReuseIdentifier = @"cell";
     [self setupTableView];
     [self setAuthorizationStatusAuthorized];
     [self getDataSourceAndReloadView];
+    [self configNavigationBar];
+    self.view.backgroundColor = HEXCOLOR(0x1D1618);
+}
+
+- (void)viewWillAppear:(BOOL)animated {
+    [super viewWillAppear:animated];
+    [self configNavigationBar];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -84,23 +92,65 @@ static NSString *const cellReuseIdentifier = @"cell";
     }
     doneTitleLabel.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
     
-    doneTitleLabel.textColor = [RCKitUtility
-                                generateDynamicColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")
-                                darkColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")];
+//    doneTitleLabel.textColor = [RCKitUtility
+//                                generateDynamicColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")
+//                                darkColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")];
+//    
+    doneTitleLabel.textColor = [UIColor whiteColor];
     [rightBarView addSubview:doneTitleLabel];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissCurrentModelViewController)];
     [rightBarView addGestureRecognizer:tap];
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithCustomView:rightBarView];
     [self.navigationItem setRightBarButtonItem:rightItem];
+    
+    
+//    
+    
+    
 }
+
+- (void)configNavigationBar {
+    if (@available(iOS 15.0, *)) {
+        self.navigationController.navigationBar.translucent = NO;
+        
+        UINavigationBarAppearance *navigationBarAppearance = [[UINavigationBarAppearance alloc] init];
+        navigationBarAppearance.titleTextAttributes = @{
+            NSForegroundColorAttributeName: [UIColor whiteColor],
+            NSFontAttributeName: [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold]
+        };
+        
+        navigationBarAppearance.buttonAppearance.normal.backgroundImagePositionAdjustment = UIOffsetMake(-20, 0);
+        navigationBarAppearance.backButtonAppearance.normal.backgroundImagePositionAdjustment = UIOffsetMake(-20, 0);
+        
+        [navigationBarAppearance configureWithOpaqueBackground];
+        
+        navigationBarAppearance.backgroundColor = HEXCOLOR(0x1D1618);
+        navigationBarAppearance.backgroundEffect = nil;
+        
+        navigationBarAppearance.shadowImage = [UIImage new];
+        
+        self.navigationController.navigationBar.standardAppearance = navigationBarAppearance;
+        self.navigationController.navigationBar.scrollEdgeAppearance = navigationBarAppearance;
+    } else {
+        self.navigationController.navigationBar.translucent = NO;
+        self.navigationController.navigationBar.barTintColor = HEXCOLOR(0x1D1618);
+        
+//        CGSize size = self.navigationController ? self.navigationController.navigationBar.bounds.size : CGSizeMake(screenWidth, 44 + safeTop);
+//        [self.navigationController.navigationBar setBackgroundImage:[self.navigationBarBackgroundColor toImageWithSize:size] forBarMetrics:UIBarMetricsDefault];
+//        
+        self.navigationController.navigationBar.shadowImage = [UIImage new];
+    }
+
+}
+
 
 - (void)setupTableView{
     [self.tableView registerClass:[RCAlbumTableCell class] forCellReuseIdentifier:cellReuseIdentifier];
     self.tableView.tableFooterView = [[UIView alloc] init];
     self.tableView.rowHeight = 65.0f;
     self.tableView.tableFooterView = [UIView new];
-    self.tableView.backgroundColor = RCDYCOLOR(0xf5f6f9, 0x111111);
-    self.tableView.separatorColor = RCDYCOLOR(0xE3E5E6, 0x272727);
+    self.tableView.backgroundColor = HEXCOLOR(0x1D1618);
+    self.tableView.separatorColor = RCMASKCOLOR(0xF7F7F7, 0.05);
     self.tableView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
     if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
         [self.tableView setSeparatorInset:UIEdgeInsetsMake(0, 0, 0, 0)];

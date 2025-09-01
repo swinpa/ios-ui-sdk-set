@@ -13,8 +13,18 @@
 @implementation RCAlbumTableCell
 - (void)layoutSubviews {
     [super layoutSubviews];
-    self.backgroundColor = [RCKitUtility generateDynamicColor:HEXCOLOR(0xffffff)
-                                                          darkColor:HEXCOLOR(0x111111)];
+//    self.backgroundColor = [RCKitUtility generateDynamicColor:HEXCOLOR(0xffffff)
+//                                                          darkColor:HEXCOLOR(0x111111)];
+    
+    self.backgroundColor = HEXCOLOR(0x1D1618);
+    UIView *bv = [[UIView alloc] init];
+    bv.backgroundColor = HEXCOLOR(0x1D1618);
+    
+    self.backgroundView = bv;
+    UIView *sbv = [[UIView alloc] init];
+    sbv.backgroundColor = RCMASKCOLOR(0x1D1618, 0.1);
+    self.selectedBackgroundView = sbv;
+    
     self.imageView.frame = CGRectMake(0, 0, 65, 65);
     self.imageView.center = CGPointMake(self.imageView.frame.size.width / 2, self.imageView.frame.size.height / 2);
     CGRect labelFrame = self.textLabel.frame;
@@ -42,7 +52,7 @@
         [[NSMutableAttributedString alloc] initWithString:model.albumName
                                                attributes:@{
                                                    NSFontAttributeName : [[RCKitConfig defaultConfig].font fontOfSecondLevel],
-                                                   NSForegroundColorAttributeName : [RCKitUtility generateDynamicColor:HEXCOLOR(0x000000) darkColor:[HEXCOLOR(0xffffff) colorWithAlphaComponent:0.9]]
+                                                   NSForegroundColorAttributeName : [RCKitUtility generateDynamicColor:HEXCOLOR(0xffffff) darkColor:[HEXCOLOR(0xffffff) colorWithAlphaComponent:0.9]]
                                                }];
     NSAttributedString *countString = [[NSAttributedString alloc]
         initWithString:[NSString stringWithFormat:@"  (%ld)", model.count]

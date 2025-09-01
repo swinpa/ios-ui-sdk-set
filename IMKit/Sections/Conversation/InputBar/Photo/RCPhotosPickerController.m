@@ -47,7 +47,8 @@ static NSString *const reuseIdentifier = @"Cell";
     if (self) {
         self.assetArray = [NSMutableArray new];
         self.selectedAssets = [NSMutableArray new];
-        self.collectionView.backgroundColor = RCDYCOLOR(0xffffff, 0x000000);
+//        self.collectionView.backgroundColor = RCDYCOLOR(0xffffff, 0x000000);
+        self.collectionView.backgroundColor = HEXCOLOR(0x1D1618);
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
     }
     return self;
@@ -56,10 +57,12 @@ static NSString *const reuseIdentifier = @"Cell";
 + (instancetype)imagePickerViewController {
     UICollectionViewFlowLayout *flowLayout = [[UICollectionViewFlowLayout alloc] init];
     flowLayout.scrollDirection = UICollectionViewScrollDirectionVertical;
-    flowLayout.itemSize = CGSizeMake(WIDTH, WIDTH);
-    flowLayout.minimumLineSpacing = 4;
-    flowLayout.minimumInteritemSpacing = 4;
-    flowLayout.sectionInset = UIEdgeInsetsMake(4, 4, 1, 4);
+    flowLayout.minimumLineSpacing = 8;
+    flowLayout.minimumInteritemSpacing = 8;
+    flowLayout.sectionInset = UIEdgeInsetsMake(0, 16, 0, 16);
+    CGFloat itemWidth = (SCREEN_WIDTH - flowLayout.sectionInset.left - flowLayout.sectionInset.right - flowLayout.minimumInteritemSpacing*3)/4.0;
+    flowLayout.itemSize = CGSizeMake(itemWidth, itemWidth);
+    
     flowLayout.footerReferenceSize = CGSizeMake(SCREEN_WIDTH, 49);
     RCPhotosPickerController *pickerViewController =
     [[RCPhotosPickerController alloc] initWithCollectionViewLayout:flowLayout];
@@ -68,8 +71,10 @@ static NSString *const reuseIdentifier = @"Cell";
 
 - (void)viewWillAppear:(BOOL)animated {
     [super viewWillAppear:animated];
-    self.navigationController.navigationBarHidden = NO;
+    [self.navigationController setNavigationBarHidden:NO animated:animated];
+//    self.navigationController.navigationBarHidden = NO;
     [self _updateBottomSendImageCountButton];
+    [self configNavigationBar];
     if(self.isLoad) {
         return;
     }
@@ -99,7 +104,7 @@ static NSString *const reuseIdentifier = @"Cell";
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.view.backgroundColor = [UIColor whiteColor];
+    self.view.backgroundColor = HEXCOLOR(0x1D1618);
     self.previousPreheatRect = CGRectZero;
     CGFloat scale = [UIScreen mainScreen].scale;
     self.thumbnailSize = (CGSize){WIDTH * scale, WIDTH * scale};
@@ -111,6 +116,7 @@ static NSString *const reuseIdentifier = @"Cell";
     
     [self setNaviItem];
     [self createTopView];
+    [self configNavigationBar];
 }
 
 - (void)viewWillLayoutSubviews {
@@ -151,6 +157,41 @@ static NSString *const reuseIdentifier = @"Cell";
     [[PHPhotoLibrary sharedPhotoLibrary] unregisterChangeObserver:self];
 }
 
+- (void)configNavigationBar {
+    if (@available(iOS 15.0, *)) {
+        self.navigationController.navigationBar.translucent = NO;
+        
+        UINavigationBarAppearance *navigationBarAppearance = [[UINavigationBarAppearance alloc] init];
+        navigationBarAppearance.titleTextAttributes = @{
+            NSForegroundColorAttributeName: [UIColor whiteColor],
+            NSFontAttributeName: [UIFont systemFontOfSize:17 weight:UIFontWeightSemibold]
+        };
+        
+        navigationBarAppearance.buttonAppearance.normal.backgroundImagePositionAdjustment = UIOffsetMake(-20, 0);
+        navigationBarAppearance.backButtonAppearance.normal.backgroundImagePositionAdjustment = UIOffsetMake(-20, 0);
+        
+        [navigationBarAppearance configureWithOpaqueBackground];
+        
+        navigationBarAppearance.backgroundColor = HEXCOLOR(0x1D1618);
+        navigationBarAppearance.backgroundEffect = nil;
+        
+        navigationBarAppearance.shadowImage = [UIImage new];
+        
+        self.navigationController.navigationBar.standardAppearance = navigationBarAppearance;
+        self.navigationController.navigationBar.scrollEdgeAppearance = navigationBarAppearance;
+    } else {
+        self.navigationController.navigationBar.translucent = NO;
+        self.navigationController.navigationBar.barTintColor = HEXCOLOR(0x1D1618);
+        
+//        CGSize size = self.navigationController ? self.navigationController.navigationBar.bounds.size : CGSizeMake(screenWidth, 44 + safeTop);
+//        [self.navigationController.navigationBar setBackgroundImage:[self.navigationBarBackgroundColor toImageWithSize:size] forBarMetrics:UIBarMetricsDefault];
+//
+        self.navigationController.navigationBar.shadowImage = [UIImage new];
+    }
+
+}
+
+
 #pragma mark - UIScrollViewDelegate
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView {
     [self updateCachedAssets];
@@ -171,7 +212,9 @@ static NSString *const reuseIdentifier = @"Cell";
     model.index = indexPath.row;
     
     [cell configPickerCellWithItem:self.assetArray[indexPath.row] delegate:self];
-    
+    cell.clipsToBounds = YES;
+    cell.layer.cornerRadius = 4;
+    cell.backgroundColor = HEXCOLOR(0x1D1618);
     return cell;
 }
 
@@ -187,7 +230,8 @@ static NSString *const reuseIdentifier = @"Cell";
 }
 
 - (void)didChangeSelectedState:(BOOL)selected model:(RCAssetModel *)asset {
-    [self cellDidChangeSelectedState:asset selected:selected];
+    //[self cellDidChangeSelectedState:asset selected:selected];
+    [self didTapPickerCollectCell:asset];
 }
 
 - (void)didTapPickerCollectCell:(RCAssetModel *)selectModel {
@@ -380,37 +424,56 @@ static NSString *const reuseIdentifier = @"Cell";
     rightBarView.frame = CGRectMake(0, 0, 80, 40);
     UILabel *doneTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
     doneTitleLabel.text = RCLocalizedString(@"Cancel");
+    
     if([RCKitUtility isRTL]){
         doneTitleLabel.textAlignment = NSTextAlignmentLeft;
     }else{
         doneTitleLabel.textAlignment = NSTextAlignmentRight;
     }
     doneTitleLabel.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
-    doneTitleLabel.textColor = [RCKitUtility
-                                generateDynamicColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")
-                                darkColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")];
+//    doneTitleLabel.textColor = [RCKitUtility
+//                                generateDynamicColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")
+//                                darkColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")];
+//    
+    doneTitleLabel.textColor = [UIColor whiteColor];
     [rightBarView addSubview:doneTitleLabel];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissCurrentModelViewController)];
     [rightBarView addGestureRecognizer:tap];
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithCustomView:rightBarView];
     [self.navigationItem setRightBarButtonItem:rightItem];
+    
+    //navigator_btn_back_dark
+    
+    RCBaseButton *btnBack = [[RCBaseButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
+    [btnBack setImage:RCResourceImage(@"navigator_btn_back_dark") forState:UIControlStateNormal];
+    [btnBack addTarget:self action:@selector(btnBackClick:) forControlEvents:UIControlEventTouchUpInside];
+    
+    UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithCustomView:btnBack];
+    [self.navigationItem setLeftBarButtonItem:leftItem];
+}
+
+- (void)btnBackClick:(UIButton*)btn {
+    [self.navigationController popViewControllerAnimated:YES];
 }
 
 - (void)createTopView {
     CGFloat height = 49 + [self getSafeAreaExtraBottomHeight];
     _toolBar = [[UIView alloc] initWithFrame:CGRectMake(0, SCREEN_HEIGHT - height, SCREEN_WIDTH, height)];
-    _toolBar.backgroundColor = RCDYCOLOR(0xffffff, 0x000000);
+    _toolBar.backgroundColor = HEXCOLOR(0x1D1618);//RCDYCOLOR(0xffffff, 0x000000);
     [self.view addSubview:_toolBar];
-    
+    _toolBar.hidden = YES;
     // add button for bottom bar
     _btnSend = [[RCBaseButton alloc] init];
     [_btnSend setTitle:RCLocalizedString(@"Send") forState:UIControlStateNormal];
+    [_btnSend setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     [_btnSend addTarget:self action:@selector(btnSendCliced:) forControlEvents:UIControlEventTouchUpInside];
     _btnSend.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     [_toolBar addSubview:_btnSend];
     
     _previewBtn = [[RCBaseButton alloc] init];
     [_previewBtn setTitle:RCLocalizedString(@"Preview") forState:UIControlStateNormal];
+    [_previewBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
     _previewBtn.contentHorizontalAlignment = UIControlContentHorizontalAlignmentLeft;
     [_previewBtn addTarget:self action:@selector(previewBtnCliced:) forControlEvents:UIControlEventTouchUpInside];
     [_toolBar addSubview:_previewBtn];
@@ -486,14 +549,17 @@ static NSString *const reuseIdentifier = @"Cell";
     [_btnSend setTitleColor:RCResourceColor(@"photoPicker_send_normal", @"0x0099ff")
                    forState:UIControlStateNormal];
     [self.btnSend setEnabled:NO];
-    [_previewBtn setTitleColor:RCResourceColor(@"photoPicker_preview_disable", @"0x959595")
-                      forState:UIControlStateDisabled];
-    [_previewBtn
-     setTitleColor:[RCKitUtility
-                    generateDynamicColor:RCResourceColor(@"photoPicker_preview_normal", @"0x000000")
-                    darkColor:RCResourceColor(@"photoPicker_preview_normal_dark",
-                                              @"0xffffff")]
-     forState:UIControlStateNormal];
+//    [_previewBtn setTitleColor:RCResourceColor(@"photoPicker_preview_disable", @"0x959595")
+//                      forState:UIControlStateDisabled];
+//    [_previewBtn
+//     setTitleColor:[RCKitUtility
+//                    generateDynamicColor:RCResourceColor(@"photoPicker_preview_normal", @"0x000000")
+//                    darkColor:RCResourceColor(@"photoPicker_preview_normal_dark",
+//                                              @"0xffffff")]
+//     forState:UIControlStateNormal];
+    
+    
+    
     [self.previewBtn setEnabled:NO];
 }
 

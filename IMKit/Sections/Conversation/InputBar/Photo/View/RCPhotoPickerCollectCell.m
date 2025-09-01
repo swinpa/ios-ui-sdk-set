@@ -230,6 +230,7 @@
         } else {
             _selectbutton.contentEdgeInsets = UIEdgeInsetsMake(28, 28 , 0, 0);
         }
+        _selectbutton.hidden = YES;
     }
     return _selectbutton;
 }

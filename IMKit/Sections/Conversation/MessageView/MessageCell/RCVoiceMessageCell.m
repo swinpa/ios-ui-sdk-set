@@ -144,9 +144,9 @@ static RCMessageDirection s_previousMessageDirection;
         self.playVoiceView.frame = CGRectMake(self.messageContentView.frame.size.width-12-Play_Voice_View_Width, (Voice_Height - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
         self.voiceDurationLabel.frame = CGRectMake(12, 0, CGRectGetMinX(self.playVoiceView.frame) - 20, Voice_Height);
         [self.voiceDurationLabel setTextColor:RCDYCOLOR(0x111f2c, 0x040A0F)];
-        self.playVoiceView.image = RCResourceImage(@"to_voice_3");
+        self.playVoiceView.image = RCResourceImage(@"to_voice_play");
     }else{
-        self.playVoiceView.image = RCResourceImage(@"from_voice_3");
+        self.playVoiceView.image = RCResourceImage(@"from_voice_play");
         [self.voiceDurationLabel setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
         self.voiceDurationLabel.textAlignment = NSTextAlignmentLeft;
         self.playVoiceView.frame = CGRectMake(12, (Voice_Height - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
@@ -357,9 +357,9 @@ static RCMessageDirection s_previousMessageDirection;
         self.animationIndex = 0;
     }
     if (MessageDirection_SEND == self.model.messageDirection) {
-        self.playVoiceView.image = RCResourceImage(@"to_voice_3");
+        self.playVoiceView.image = RCResourceImage(@"to_voice_play");
     } else {
-        self.playVoiceView.image = RCResourceImage(@"from_voice_3");
+        self.playVoiceView.image = RCResourceImage(@"from_voice_play");
     }
 }
 
@@ -373,9 +373,9 @@ static RCMessageDirection s_previousMessageDirection;
          */
         if (s_previousPlayVoiceImageView) {
             if (MessageDirection_SEND == self.model.messageDirection) {
-                s_previousPlayVoiceImageView.image = RCResourceImage(@"to_voice_3");
+                s_previousPlayVoiceImageView.image = RCResourceImage(@"to_voice_play");
             } else {
-                s_previousPlayVoiceImageView.image = RCResourceImage(@"from_voice_3");
+                s_previousPlayVoiceImageView.image = RCResourceImage(@"from_voice_play");
             }
             s_previousPlayVoiceImageView = nil;
             s_previousMessageDirection = 0;
@@ -437,7 +437,7 @@ static RCMessageDirection s_previousMessageDirection;
 - (RCBaseImageView *)playVoiceView{
     if (!_playVoiceView) {
         _playVoiceView = [[RCBaseImageView alloc] initWithFrame:CGRectZero];
-        _playVoiceView.image = RCResourceImage(@"play_voice");
+        _playVoiceView.image = RCResourceImage(@"to_voice_play");
 
     }
     return _playVoiceView;
