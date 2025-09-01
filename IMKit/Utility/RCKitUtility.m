@@ -77,24 +77,40 @@
     [formatter setLocale:[[NSLocale alloc]
                              initWithLocaleIdentifier:RCLocalizedString(@"locale")]];
     if ([self isSameYear:messageDate]) {
-        if ([self isSameMonth:messageDate]) {
-            NSInteger intervalDays = [self getIntervalDays:messageDate];
+        
+        NSInteger intervalDays = [self getIntervalDays:messageDate];
+        if (intervalDays == 0) {
             NSString *formatStr = [self getDateFormatterString:messageDate];
             [formatter setDateFormat:formatStr];
-            if (intervalDays == 0) {
-                return timeText = [formatter stringFromDate:messageDate];
-            } else if (intervalDays == 1) {
-                return timeText = [NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"Yesterday"), [formatter stringFromDate:messageDate]];
-            } else if (intervalDays < 7 && [self isCurrentWeek:messageDate]) {
-                [formatter setDateFormat:[NSString stringWithFormat:@"eeee %@", formatStr]];
-                return timeText = [formatter stringFromDate:messageDate];
-            } else {
-                [formatter setDateFormat:[NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"SameYearDate"), [self getDateFormatterString:messageDate]]];
-                return [formatter stringFromDate:messageDate];
-            }
+            return timeText = [formatter stringFromDate:messageDate];
+        } else if (intervalDays == 1) {
+            return timeText = RCLocalizedString(@"Yesterday");
+        } else if (intervalDays < 7) {
+            [formatter setDateFormat:@"eeee"];
+            return timeText = [formatter stringFromDate:messageDate];
+        } else {
+            [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
+            return timeText = [formatter stringFromDate:messageDate];
         }
-        [formatter setDateFormat:[NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"SameYearDate"), [self getDateFormatterString:messageDate]]];
-        return [formatter stringFromDate:messageDate];
+        
+//        if ([self isSameMonth:messageDate]) {
+//            NSInteger intervalDays = [self getIntervalDays:messageDate];
+//            NSString *formatStr = [self getDateFormatterString:messageDate];
+//            [formatter setDateFormat:formatStr];
+//            if (intervalDays == 0) {
+//                return timeText = [formatter stringFromDate:messageDate];
+//            } else if (intervalDays == 1) {
+//                return timeText = [NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"Yesterday"), [formatter stringFromDate:messageDate]];
+//            } else if (intervalDays < 7 && [self isCurrentWeek:messageDate]) {
+//                [formatter setDateFormat:[NSString stringWithFormat:@"eeee %@", formatStr]];
+//                return timeText = [formatter stringFromDate:messageDate];
+//            } else {
+//                [formatter setDateFormat:[NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"SameYearDate"), [self getDateFormatterString:messageDate]]];
+//                return [formatter stringFromDate:messageDate];
+//            }
+//        }
+//        [formatter setDateFormat:[NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"SameYearDate"), [self getDateFormatterString:messageDate]]];
+//        return [formatter stringFromDate:messageDate];
     }
     return [self getMessageDate:messageDate dateFormat:formatter];
 }
