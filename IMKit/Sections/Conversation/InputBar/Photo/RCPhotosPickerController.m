@@ -255,18 +255,18 @@ static NSString *const reuseIdentifier = @"Cell";
     RCPhotoPreviewCollectionViewController *previewController =
     [RCPhotoPreviewCollectionViewController imagePickerViewController];
     previewController.isFull = self.isFull;
-    [previewController previewPhotosWithSelectArr:self.selectedAssets
-                                     allPhotosArr:self.assetArray
-                                     currentIndex:selectModel.index
+    [previewController previewPhotosWithSelectArr:@[selectModel]
+                                     allPhotosArr:@[selectModel]
+                                     currentIndex:0
                                  accordToIsSelect:NO];
     [previewController
      setFinishPreviewAndBackPhotosPicker:^(NSMutableArray *selectArr, NSArray *assetPhotos, BOOL isFull) {
         
-        self.selectedAssets = selectArr;
-        self.assetArray = assetPhotos.mutableCopy;
-        self.isFull = isFull;
-        [self setButtonEnable];
-        [self.collectionView reloadData];
+//        self.selectedAssets = selectArr;
+//        self.assetArray = assetPhotos.mutableCopy;
+//        self.isFull = isFull;
+//        [self setButtonEnable];
+//        [self.collectionView reloadData];
     }];
     [previewController setFinishiPreviewAndSendImage:^(NSArray *selectArr, BOOL isFull) {
         self.sendPhotosBlock(selectArr, isFull);

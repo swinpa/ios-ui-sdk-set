@@ -137,21 +137,21 @@
 }
 
 - (void)voiceRecordButtonTouchUpInside:(UIButton *)sender {
-    sender.backgroundColor = RCDYCOLOR(0xffffff,0x2d2d2d);
+    sender.backgroundColor =  HEXCOLOR(0xF7F7F7);//RCDYCOLOR(0xffffff,0x2d2d2d);
     if (self.delegate && [self.delegate respondsToSelector:@selector(inputContainerView:forControlEvents:)]) {
         [self.delegate inputContainerView:self forControlEvents:UIControlEventTouchUpInside];
     }
 }
 
 - (void)voiceRecordButtonTouchCancel:(UIButton *)sender {
-    sender.backgroundColor = RCDYCOLOR(0xffffff,0x2d2d2d);
+    sender.backgroundColor = HEXCOLOR(0xF7F7F7);//RCDYCOLOR(0xffffff,0x2d2d2d);
     if (self.delegate && [self.delegate respondsToSelector:@selector(inputContainerView:forControlEvents:)]) {
         [self.delegate inputContainerView:self forControlEvents:UIControlEventTouchCancel];
     }
 }
 
 - (void)voiceRecordButtonTouchDragExit:(UIButton *)sender {
-    sender.backgroundColor = RCDYCOLOR(0xffffff,0x2d2d2d);
+    sender.backgroundColor =  HEXCOLOR(0xF7F7F7);//RCDYCOLOR(0xffffff,0x2d2d2d);
     if (self.delegate && [self.delegate respondsToSelector:@selector(inputContainerView:forControlEvents:)]) {
         [self.delegate inputContainerView:self forControlEvents:UIControlEventTouchDragExit];
     }
@@ -165,7 +165,7 @@
 }
 
 - (void)voiceRecordButtonTouchUpOutside:(UIButton *)sender {
-    sender.backgroundColor = RCDYCOLOR(0xffffff,0x323232);
+    sender.backgroundColor = HEXCOLOR(0xF7F7F7);//RCDYCOLOR(0xffffff,0x323232);
     if (self.delegate && [self.delegate respondsToSelector:@selector(inputContainerView:forControlEvents:)]) {
         [self.delegate inputContainerView:self forControlEvents:UIControlEventTouchUpOutside];
     }
@@ -557,7 +557,7 @@
             [self.toolBar.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:0],
             
             // toolBar 右边与父视图右边对齐
-            [self.toolBar.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:0],
+//            [self.toolBar.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:0],
             
             // toolBar 顶部距离 inputTextView 底部 10
             [self.toolBar.topAnchor constraintEqualToAnchor:self.inputTextView.bottomAnchor constant:10],

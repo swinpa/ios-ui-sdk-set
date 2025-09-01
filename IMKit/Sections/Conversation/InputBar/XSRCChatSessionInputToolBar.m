@@ -89,7 +89,7 @@
         _stackView = [[UIStackView alloc] initWithArrangedSubviews:@[
             self.albumButton,
             self.cameraButton,
-            self.giftButton,
+//            self.giftButton,
             self.emojiButton
         ]];
         _stackView.axis = UILayoutConstraintAxisHorizontal;
@@ -111,7 +111,7 @@
     NSArray *buttons = @[
         self.albumButton,
         self.cameraButton,
-        self.giftButton,
+//        self.giftButton,
         self.emojiButton
     ];
     // 按钮固定大小
@@ -123,12 +123,14 @@
         ]];
     }
     self.stackView.translatesAutoresizingMaskIntoConstraints = NO;
+    CGFloat w = buttonSize.width * buttons.count + 65.0 * (buttons.count - 1);
     // StackView 左右上下约束
     [NSLayoutConstraint activateConstraints:@[
         [self.stackView.leadingAnchor constraintEqualToAnchor:self.leadingAnchor constant:sideMargin],
         [self.stackView.trailingAnchor constraintEqualToAnchor:self.trailingAnchor constant:-sideMargin],
         [self.stackView.topAnchor constraintEqualToAnchor:self.topAnchor constant:topBottomMargin],
-        [self.stackView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-topBottomMargin]
+        [self.stackView.bottomAnchor constraintEqualToAnchor:self.bottomAnchor constant:-topBottomMargin],
+        [self.stackView.widthAnchor constraintEqualToConstant:w]
     ]];
     self.translatesAutoresizingMaskIntoConstraints = NO;
     

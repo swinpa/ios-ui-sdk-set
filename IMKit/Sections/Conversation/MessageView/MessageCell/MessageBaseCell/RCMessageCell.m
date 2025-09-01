@@ -191,12 +191,13 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
             [self.messageActivityIndicatorView stopAnimating];
         }
     }
+    [self.receiptView setImage:RCResourceImage(@"message_sended_status") forState:UIControlStateNormal];
     if (model.isCanSendReadReceipt) {
         self.receiptView.hidden = NO;
         self.receiptView.userInteractionEnabled = YES;
         self.receiptStatusLabel.hidden = YES;
     } else {
-        self.receiptView.hidden = YES;
+        self.receiptView.hidden = NO;
         self.receiptStatusLabel.hidden = NO;
     }
 }
@@ -208,6 +209,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
     if (!isDisplayReadStatus || !isReadStatusType) {
         return;
     }
+    [self.receiptView setImage:RCResourceImage(@"message_read_status") forState:UIControlStateNormal];
     if (model.messageUId.length > 0) {
         self.receiptStatusLabel.hidden = YES;
         self.receiptStatusLabel.userInteractionEnabled = NO;

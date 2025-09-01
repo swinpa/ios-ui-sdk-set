@@ -309,7 +309,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                               [self.selectedArr addObject:model];
                                           }
                                       }
-                                      if (!self.allPhotosArr[i].isSelect) {
+                                      if (i < self.allPhotosArr.count && !self.allPhotosArr[i].isSelect) {
                                           self.allPhotosArr[i].isSelect = YES;
                                       }
                                       [self _updateTopBarStatus];
