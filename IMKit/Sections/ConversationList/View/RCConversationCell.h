@@ -68,6 +68,9 @@
  */
 @property (nonatomic, strong) RCBaseImageView *conversationStatusImageView;
 
+
+@property (nonatomic, strong) UILabel *unreadnumView;
+
 /*!
  Cell中显示的头像形状
 

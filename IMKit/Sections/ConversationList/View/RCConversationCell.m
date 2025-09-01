@@ -24,6 +24,9 @@
 //cell 复用的时候，检测如果是即将刷新的是同一个用户信息，那么就跳过刷新
 //IMSDK-2705
 @property (nonatomic, strong) RCUserInfo *currentDisplayedUserInfo;
+
+@property (nonatomic, strong) NSLayoutConstraint *unreadnumWidthConstraint;
+
 @end
 
 @implementation RCConversationCell
@@ -51,6 +54,7 @@
     [self.contentView addSubview:self.messageCreatedTimeLabel];
     [self.contentView addSubview:self.detailContentView];
     [self.contentView addSubview:self.statusView];
+    [self.contentView addSubview:self.unreadnumView];
     self.statusView.conversationNotificationStatusView.hidden = YES;
     [self addSubViewConstraints];
 }
@@ -92,9 +96,9 @@
                                        _statusView, _conversationTagView);
     [self.contentView
         addConstraints:[NSLayoutConstraint
-                           constraintsWithVisualFormat:@"H:|-12-[_headerView(width)]-12-"
+                           constraintsWithVisualFormat:@"H:|-16-[_headerView(width)]-12-"
                                                        @"[_conversationTitle]-5-[_conversationTagView(50)]-5-"
-                                                       @"[_messageCreatedTimeLabel(>=80)]-12-|"
+                                                       @"[_messageCreatedTimeLabel(>=80)]-16-|"
                                                options:0
                                                metrics:@{
                                                    @"width" : @(RCKitConfigCenter.ui.globalConversationPortraitSize.width)
@@ -133,6 +137,8 @@
                                                                options:0
                                                                metrics:nil
                                                                  views:cellSubViews]];
+    
+    
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.statusView
                                                                  attribute:NSLayoutAttributeCenterY
                                                                  relatedBy:NSLayoutRelationEqual
@@ -140,6 +146,15 @@
                                                                  attribute:NSLayoutAttributeCenterY
                                                                 multiplier:1
                                                                   constant:0]];
+    
+    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.unreadnumView
+                                                                 attribute:NSLayoutAttributeCenterY
+                                                                 relatedBy:NSLayoutRelationEqual
+                                                                    toItem:self.detailContentView
+                                                                 attribute:NSLayoutAttributeCenterY
+                                                                multiplier:1
+                                                                  constant:0]];
+    
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.conversationTagView
                                                                  attribute:NSLayoutAttributeCenterY
                                                                  relatedBy:NSLayoutRelationEqual
@@ -171,8 +186,30 @@
                                                                  attribute:NSLayoutAttributeCenterY
                                                                 multiplier:1
                                                                   constant:0]];
+    
+    
+    // 基础约束（放在 cell 右上角）
+        [NSLayoutConstraint activateConstraints:@[
+            [self.unreadnumView.centerYAnchor constraintEqualToAnchor:self.detailContentView.centerYAnchor constant:0],
+            [self.unreadnumView.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor constant:-16],
+            [self.unreadnumView.heightAnchor constraintEqualToConstant:16]
+        ]];
+        
+        // 宽度约束（初始值设为最小 20）
+        self.unreadnumWidthConstraint = [self.unreadnumView.widthAnchor constraintEqualToConstant:16];
+        self.unreadnumWidthConstraint.active = YES;
+        
 
     [self setNeedsUpdateConstraints];
+}
+
+- (NSString*)unreadString:(int)msgCount {
+    if (msgCount < 100 && msgCount > 0) {
+        return [NSString stringWithFormat:@"%ld", msgCount];
+    } else if (msgCount >= 100) {
+        return @"99+";
+    }
+    return @"";
 }
 
 #pragma mark - Model处理&显示
@@ -190,6 +227,7 @@
     }
 
     [self.headerView updateBubbleUnreadNumber:(int)model.unreadMessageCount];
+    self.headerView.bubbleView.hidden = YES;
     if (model.sentTime > 0) {
         self.messageCreatedTimeLabel.text = [RCKitUtility convertConversationTime:model.sentTime / 1000];
     } else if (model.operationTime > 0) {
@@ -197,6 +235,35 @@
     }
     [self.statusView updateNotificationStatus:model];
     [self.statusView updateReadStatus:model];
+    self.statusView.hidden = YES;
+    
+    if(model.unreadMessageCount == 0) {
+        self.unreadnumView.hidden = YES;
+    }else{
+        self.unreadnumView.hidden = NO;
+
+        NSString *value = [self unreadString:model.unreadMessageCount];
+
+        // 设置文字的字体属性
+        NSDictionary *attributes = @{NSFontAttributeName : [UIFont systemFontOfSize:12]};
+
+        // 计算文字宽度
+        CGSize textSize = [value sizeWithAttributes:attributes];
+
+        // 给未读数 label 赋值
+        self.unreadnumView.text = value;
+
+        if(model.unreadMessageCount < 10) {
+            // 更新 unreadnumView 的 frame 或约束
+            self.unreadnumWidthConstraint.constant = 16;
+        }else{
+            // 根据文字大小调整 unreadnumView 的宽度（留出左右 padding）
+            CGFloat padding = 8.0;
+            CGFloat finalWidth = textSize.width + padding;
+            self.unreadnumWidthConstraint.constant = finalWidth;
+        }
+    }
+    
 }
 
 - (void)p_displaySimaple:(RCConversationModel *)model {
@@ -620,6 +687,22 @@
     }
     return _statusView;
 }
+
+- (RCConversationStatusView *)unreadnumView {
+    if(!_unreadnumView) {
+        _unreadnumView = [[UILabel alloc] init];
+        _unreadnumView.translatesAutoresizingMaskIntoConstraints = NO;
+        _unreadnumView.backgroundColor = HEXCOLOR(0xF84E2B);
+        _unreadnumView.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
+        _unreadnumView.textColor = HEXCOLOR(0xffffff);
+        _unreadnumView.hidden = YES;
+        _unreadnumView.textAlignment = NSTextAlignmentCenter;
+        _unreadnumView.clipsToBounds = YES;
+        _unreadnumView.layer.cornerRadius = 8;
+    }
+    return _unreadnumView;
+}
+
 #pragma mark - private method
 - (BOOL)isSameUserInfo:(RCUserInfo *)currentUserInfo other:(RCUserInfo *)other {
     if (!currentUserInfo || !other) {
