@@ -49,24 +49,22 @@
     NSString *locale = RCLocalizedString(@"locale");
     [formatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:locale]];
     if ([self isSameYear:messageDate]) {
-        if ([self isSameMonth:messageDate]) {
-            NSInteger intervalDays = [self getIntervalDays:messageDate];
-            if (intervalDays == 0) {
-                NSString *formatStr = [self getDateFormatterString:messageDate];
-                [formatter setDateFormat:formatStr];
-                return timeText = [formatter stringFromDate:messageDate];
-            } else if (intervalDays == 1) {
-                return timeText = RCLocalizedString(@"Yesterday");
-            } else if (intervalDays < 7 && [self isCurrentWeek:messageDate]) {
-                [formatter setDateFormat:@"eeee"];
-                return timeText = [formatter stringFromDate:messageDate];
-            } else {
-                [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
-                return timeText = [formatter stringFromDate:messageDate];
-            }
+        NSInteger intervalDays = [self getIntervalDays:messageDate];
+        if (intervalDays == 0) {
+            NSString *formatStr = [self getDateFormatterString:messageDate];
+            [formatter setDateFormat:formatStr];
+            return timeText = [formatter stringFromDate:messageDate];
+        } else if (intervalDays == 1) {
+            return timeText = RCLocalizedString(@"Yesterday");
+        } else if (intervalDays < 7) {
+            [formatter setDateFormat:@"eeee"];
+            return timeText = [formatter stringFromDate:messageDate];
+        } else {
+            [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
+            return timeText = [formatter stringFromDate:messageDate];
         }
-        [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
-        return timeText = [formatter stringFromDate:messageDate];
+//        [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
+//        return timeText = [formatter stringFromDate:messageDate];
     }
     [formatter setDateFormat:RCLocalizedString(@"chatListDate")];
     return timeText = [formatter stringFromDate:messageDate];
