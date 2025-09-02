@@ -645,8 +645,8 @@
         _conversationTitle = [[UILabel alloc] init];
         _conversationTitle.translatesAutoresizingMaskIntoConstraints = NO;
         _conversationTitle.backgroundColor = [UIColor clearColor];
-        _conversationTitle.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
-        _conversationTitle.textColor = [RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:[HEXCOLOR(0xffffff) colorWithAlphaComponent:0.9]];
+        _conversationTitle.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];//[[RCKitConfig defaultConfig].font fontOfSecondLevel];
+        _conversationTitle.textColor = HEXCOLOR(0x333333);//[RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:[HEXCOLOR(0xffffff) colorWithAlphaComponent:0.9]];
     }
     return _conversationTitle;
 }
@@ -665,8 +665,8 @@
         _messageCreatedTimeLabel = [[UILabel alloc] init];
         _messageCreatedTimeLabel.translatesAutoresizingMaskIntoConstraints = NO;
         _messageCreatedTimeLabel.backgroundColor = [UIColor clearColor];
-        _messageCreatedTimeLabel.font = [[RCKitConfig defaultConfig].font fontOfGuideLevel];
-        _messageCreatedTimeLabel.textColor = RCDYCOLOR(0xC7CbCe, 0x3c3c3c);
+        _messageCreatedTimeLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];//[[RCKitConfig defaultConfig].font fontOfGuideLevel];
+        _messageCreatedTimeLabel.textColor = HEXCOLOR(0x999999);// RCDYCOLOR(0xC7CbCe, 0x3c3c3c);
         BOOL isRTL = [RCSemanticContext isRTL];
         _messageCreatedTimeLabel.textAlignment = isRTL ? NSTextAlignmentLeft : NSTextAlignmentRight;
         _messageCreatedTimeLabel.accessibilityLabel = @"messageCreatedTimeLabel";
@@ -677,6 +677,8 @@
 - (RCConversationDetailContentView *)detailContentView {
     if(!_detailContentView) {
         _detailContentView = [[RCConversationDetailContentView alloc] init];
+        _detailContentView.messageContentLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightRegular];
+        _detailContentView.messageContentLabel.textColor = HEXCOLOR(0x666666);
     }
     return _detailContentView;
 }

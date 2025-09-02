@@ -493,13 +493,13 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 - (void)setNavigationItem{
     if (ConversationType_APPSERVICE == self.conversationType ||
         ConversationType_PUBLICSERVICE == self.conversationType){
-        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:RCResourceImage(@"rc_setting")
-                                                                                  style:UIBarButtonItemStylePlain
-                                                                                 target:self
-                                                                                 action:@selector(rightBarButtonItemClicked:)];
+//        self.navigationItem.rightBarButtonItem = [[UIBarButtonItem alloc] initWithImage:RCResourceImage(@"rc_setting")
+//                                                                                  style:UIBarButtonItemStylePlain
+//                                                                                 target:self
+//                                                                                 action:@selector(rightBarButtonItemClicked:)];
     }
     
-    self.navigationItem.leftBarButtonItems = [self getLeftBackButton];
+//    self.navigationItem.leftBarButtonItems = [self getLeftBackButton];
 }
 
 - (void)updateUnreadMsgCountLabel {
@@ -2179,10 +2179,10 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
     if (self.allowsMessageCellSelection) {
         dispatch_async(dispatch_get_main_queue(), ^{
             __strong typeof(__weakself) strongSelf = __weakself;
-            strongSelf.rightBarButtonItems = strongSelf.navigationItem.rightBarButtonItems;
-            strongSelf.leftBarButtonItems = strongSelf.navigationItem.leftBarButtonItems;
-            strongSelf.navigationItem.rightBarButtonItems = nil;
-            strongSelf.navigationItem.leftBarButtonItems = nil;
+//            strongSelf.rightBarButtonItems = strongSelf.navigationItem.rightBarButtonItems;
+//            strongSelf.leftBarButtonItems = strongSelf.navigationItem.leftBarButtonItems;
+//            strongSelf.navigationItem.rightBarButtonItems = nil;
+//            strongSelf.navigationItem.leftBarButtonItems = nil;
             UIBarButtonItem *left =
                 [[UIBarButtonItem alloc] initWithTitle:RCLocalizedString(@"Cancel")
                                                  style:UIBarButtonItemStylePlain
@@ -2190,28 +2190,28 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
                                                 action:@selector(onCancelMultiSelectEvent:)];
 
             [left setTintColor:RCKitConfigCenter.ui.globalNavigationBarTintColor];
-            strongSelf.navigationItem.leftBarButtonItem = left;
+//            strongSelf.navigationItem.leftBarButtonItem = left;
         });
     } else {
         if(!self.displayConversationTypeArray) {
             dispatch_async(dispatch_get_main_queue(), ^{
                 __strong typeof(__weakself) strongSelf = __weakself;
-                strongSelf.navigationItem.leftBarButtonItems = strongSelf.leftBarButtonItems;
-                strongSelf.leftBarButtonItems = nil;
+//                strongSelf.navigationItem.leftBarButtonItems = strongSelf.leftBarButtonItems;
+//                strongSelf.leftBarButtonItems = nil;
                 if (strongSelf.conversationType != ConversationType_Encrypted && strongSelf.rightBarButtonItems) {
-                    strongSelf.navigationItem.rightBarButtonItems = strongSelf.rightBarButtonItems;
-                    strongSelf.rightBarButtonItems = nil;
+//                    strongSelf.navigationItem.rightBarButtonItems = strongSelf.rightBarButtonItems;
+//                    strongSelf.rightBarButtonItems = nil;
                 }
             });
             return;
         }
         dispatch_async(dispatch_get_main_queue(), ^{
-            [self.navigationItem setLeftBarButtonItems:[self getLeftBackButton]];
-            self.leftBarButtonItems = nil;
-            if (self.rightBarButtonItems) {
-                self.navigationItem.rightBarButtonItems = self.rightBarButtonItems;
-                self.rightBarButtonItems = nil;
-            }
+//            [self.navigationItem setLeftBarButtonItems:[self getLeftBackButton]];
+//            self.leftBarButtonItems = nil;
+//            if (self.rightBarButtonItems) {
+//                self.navigationItem.rightBarButtonItems = self.rightBarButtonItems;
+//                self.rightBarButtonItems = nil;
+//            }
         });
     }
 }

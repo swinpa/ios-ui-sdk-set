@@ -50,21 +50,19 @@
     [formatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:locale]];
     if ([self isSameYear:messageDate]) {
         NSInteger intervalDays = [self getIntervalDays:messageDate];
+        NSString *formatStr = [self getDateFormatterString:messageDate];
+        [formatter setDateFormat:formatStr];
         if (intervalDays == 0) {
-            NSString *formatStr = [self getDateFormatterString:messageDate];
-            [formatter setDateFormat:formatStr];
             return timeText = [formatter stringFromDate:messageDate];
         } else if (intervalDays == 1) {
-            return timeText = RCLocalizedString(@"Yesterday");
+            return timeText = [NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"Yesterday"), [formatter stringFromDate:messageDate]];
         } else if (intervalDays < 7) {
-            [formatter setDateFormat:@"eeee"];
+            [formatter setDateFormat:[NSString stringWithFormat:@"eeee %@", formatStr]];
             return timeText = [formatter stringFromDate:messageDate];
         } else {
-            [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
-            return timeText = [formatter stringFromDate:messageDate];
+            [formatter setDateFormat:[NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"SameYearDate"), formatStr]];
+            return [formatter stringFromDate:messageDate];
         }
-//        [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
-//        return timeText = [formatter stringFromDate:messageDate];
     }
     [formatter setDateFormat:RCLocalizedString(@"chatListDate")];
     return timeText = [formatter stringFromDate:messageDate];
@@ -79,18 +77,18 @@
     if ([self isSameYear:messageDate]) {
         
         NSInteger intervalDays = [self getIntervalDays:messageDate];
+        NSString *formatStr = [self getDateFormatterString:messageDate];
+        [formatter setDateFormat:formatStr];
         if (intervalDays == 0) {
-            NSString *formatStr = [self getDateFormatterString:messageDate];
-            [formatter setDateFormat:formatStr];
             return timeText = [formatter stringFromDate:messageDate];
         } else if (intervalDays == 1) {
-            return timeText = RCLocalizedString(@"Yesterday");
+            return timeText = [NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"Yesterday"), [formatter stringFromDate:messageDate]];
         } else if (intervalDays < 7) {
-            [formatter setDateFormat:@"eeee"];
+            [formatter setDateFormat:[NSString stringWithFormat:@"eeee %@", formatStr]];
             return timeText = [formatter stringFromDate:messageDate];
         } else {
-            [formatter setDateFormat:RCLocalizedString(@"SameYearDate")];
-            return timeText = [formatter stringFromDate:messageDate];
+            [formatter setDateFormat:[NSString stringWithFormat:@"%@ %@", RCLocalizedString(@"SameYearDate"), formatStr]];
+            return [formatter stringFromDate:messageDate];
         }
         
 //        if ([self isSameMonth:messageDate]) {
