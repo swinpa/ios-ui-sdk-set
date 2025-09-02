@@ -176,7 +176,8 @@
 #import <RongIMKit/RCSearchGroupsViewModel.h>
 #import <RongIMKit/RCSearchGroupsViewController.h>
 #import <RongIMKit/RCMyGroupsView.h>
-
+#import "RCChatSessionInputBarControl.h"
+#import "RCAlumListTableViewController.h"
 // STT
 #import <RongIMKit/RCSTTContentViewModel.h>
 #else
@@ -351,7 +352,8 @@
 #import "RCSearchGroupsViewModel.h"
 #import "RCSearchGroupsViewController.h"
 #import "RCMyGroupsView.h"
-
+#import "RCChatSessionInputBarControl.h"
+#import "RCAlumListTableViewController.h"
 // STT
 #import "RCSTTContentViewModel.h"
 #endif

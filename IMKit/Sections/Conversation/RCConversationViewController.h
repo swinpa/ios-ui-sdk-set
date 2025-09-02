@@ -52,7 +52,7 @@ typedef enum : NSUInteger {
 /// 会话页面类
 @interface RCConversationViewController
     : RCBaseViewController <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout,
-                            UIGestureRecognizerDelegate, UIScrollViewDelegate>
+                            UIGestureRecognizerDelegate, UIScrollViewDelegate,RCChatSessionInputBarControlDelegate>
 
 #pragma mark - 初始化
 
@@ -557,6 +557,9 @@ typedef enum : NSUInteger {
 
 /// 客服评价弹出时间，在客服页面停留超过这个时间，离开客服会弹出评价提示框，默认为60s
 @property (nonatomic, assign) NSTimeInterval csEvaInterval;
+
+
+@property (nonatomic, assign) CGFloat viewHeight;
 
 /// 评价客服服务,然后离开当前VC的。
 /// 此方法有可能在离开客服会话页面触发，也可能是客服在后台推送评价触发，也可能用户点击机器人知识库评价触发。

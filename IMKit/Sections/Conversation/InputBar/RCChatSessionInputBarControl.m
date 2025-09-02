@@ -89,6 +89,7 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
              defaultInputType:(RCChatSessionInputBarInputType)defaultInputType {
     self = [super initWithFrame:frame];
     if (self) {
+        self.conversationViewHeight = containerView.bounds.size.height;
         _containerView = containerView;
         [self rcinit];
         [self setInputBarType:controlType style:controlStyle];
@@ -176,10 +177,34 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 
 // 打开相册
 - (void)openSystemAlbum {
-    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-    albumListVC.delegate = self;
-    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    
+    if (self.conversationViewHeight != SCREEN_HEIGHT) {
+        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+        albumListVC.delegate = self;
+        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+        CGRect rect = CGRectMake(0, SCREEN_HEIGHT - self.conversationViewHeight, SCREEN_WIDTH, self.conversationViewHeight);
+        rootVC.view.frame = rect;
+        rootVC.view.backgroundColor = UIColor.clearColor;
+        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    }else{
+        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+        albumListVC.delegate = self;
+        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    }
+    
+    
+    
+    /*
+     viewControllerToPresent.view.backgroundColor = .clear
+     let navi = XSNavigationController(rootViewController: viewControllerToPresent)
+     navi.view.backgroundColor = .clear
+     if let vc = viewControllerToPresent as? XSRoomIMConversationListViewController {
+         navi.view.height = 580
+         navi.view.y = screenHeight - navi.view.height
+     }
+     super.present(navi, animated: flag, completion: completion)
+     */
 }
 
 // 打开相机
@@ -442,22 +467,59 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 //        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_ALBUM_TAG];
 //    }
     RCKitConfigCenter.message.isMediaSelectorContainVideo = NO;
-    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-    albumListVC.delegate = self;
-    albumListVC.type = RCAlbumTypePhotos;
-    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+//    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+//    albumListVC.delegate = self;
+//    albumListVC.type = RCAlbumTypePhotos;
+//    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+//    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+//    
+    
+    
+    if (self.conversationViewHeight != SCREEN_HEIGHT) {
+        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+        albumListVC.delegate = self;
+        albumListVC.type = RCAlbumTypePhotos;
+//        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+//        CGRect rect = CGRectMake(0, SCREEN_HEIGHT - self.conversationViewHeight, SCREEN_WIDTH, self.conversationViewHeight);
+//        rootVC.view.frame = rect;
+//        rootVC.view.backgroundColor = UIColor.clearColor;
+        [self.delegate presentViewController:albumListVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    }else{
+        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+        albumListVC.delegate = self;
+        albumListVC.type = RCAlbumTypePhotos;
+        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    }
+    
 }
 - (void)inputContainerViewCameraButtonClicked:(RCInputContainerView *)inputContainerView {
 //    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
 //        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_CAMERA_TAG];
 //    }
     RCKitConfigCenter.message.isMediaSelectorContainVideo = YES;
-    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-    albumListVC.delegate = self;
-    albumListVC.type = RCAlbumTypeVideos;
-    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+//    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+//    albumListVC.delegate = self;
+//    albumListVC.type = RCAlbumTypeVideos;
+//    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+//    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    
+    if (self.conversationViewHeight != SCREEN_HEIGHT) {
+        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+        albumListVC.delegate = self;
+        albumListVC.type = RCAlbumTypeVideos;
+        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+        CGRect rect = CGRectMake(0, SCREEN_HEIGHT - self.conversationViewHeight, SCREEN_WIDTH, self.conversationViewHeight);
+        rootVC.view.frame = rect;
+        rootVC.view.backgroundColor = UIColor.clearColor;
+        [self.delegate presentViewController:albumListVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    }else{
+        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+        albumListVC.delegate = self;
+        albumListVC.type = RCAlbumTypeVideos;
+        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+    }
 }
 - (void)inputContainerViewGiftButtonClicked:(RCInputContainerView *)inputContainerView {
     
@@ -1102,10 +1164,13 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
     float bottom = [self getSafeAreaExtraBottomHeight];
     gap += bottom;
     if (bottom > 0) {// 刘海屏的热点栏不影响statusBar高度
-        return [UIScreen mainScreen].bounds.size.height - gap;
+//        return [UIScreen mainScreen].bounds.size.height - gap;
+        return self.conversationViewHeight - gap;
     } else {
-        return IS_HOTSPOT_CONNECTED ? [UIScreen mainScreen].bounds.size.height - gap - 20
-        : [UIScreen mainScreen].bounds.size.height - gap;
+//        return IS_HOTSPOT_CONNECTED ? [UIScreen mainScreen].bounds.size.height - gap - 20
+//        : [UIScreen mainScreen].bounds.size.height - gap;
+        return IS_HOTSPOT_CONNECTED ? self.conversationViewHeight - gap - 20
+                : self.conversationViewHeight - gap;
     }
 }
 

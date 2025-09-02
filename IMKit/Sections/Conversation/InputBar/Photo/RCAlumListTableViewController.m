@@ -151,7 +151,7 @@ static NSString *const cellReuseIdentifier = @"cell";
     self.tableView.tableFooterView = [UIView new];
     self.tableView.backgroundColor = HEXCOLOR(0x1D1618);
     self.tableView.separatorColor = RCMASKCOLOR(0xF7F7F7, 0.05);
-    self.tableView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, [UIScreen mainScreen].bounds.size.height);
+    self.tableView.frame = CGRectMake(0, 0, [UIScreen mainScreen].bounds.size.width, self.view.bounds.size.height);
     if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
         [self.tableView setSeparatorInset:UIEdgeInsetsMake(0, 0, 0, 0)];
     }
@@ -403,7 +403,7 @@ static NSString *const cellReuseIdentifier = @"cell";
         _tipsLabel.textAlignment = NSTextAlignmentCenter;
         _tipsLabel.numberOfLines = 0;
         _tipsLabel.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
-        _tipsLabel.textColor = [UIColor blackColor];
+        _tipsLabel.textColor = [UIColor whiteColor];
         _tipsLabel.text = RCLocalizedString(@"PhotoAccessRight");
         [self.view addSubview:_tipsLabel];
         _tipsLabel.hidden = YES;

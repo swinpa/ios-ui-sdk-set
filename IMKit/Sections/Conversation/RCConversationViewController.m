@@ -79,7 +79,7 @@ NSUInteger const RCStreamMessageTextLimit = 10000;
 
 @interface RCConversationViewController () <
     UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, RCMessageCellDelegate,
-    RCChatSessionInputBarControlDelegate, UIGestureRecognizerDelegate, UIScrollViewDelegate,
+     UIGestureRecognizerDelegate, UIScrollViewDelegate,
     UINavigationControllerDelegate, RCPublicServiceMessageCellDelegate, RCTypingStatusDelegate,
 RCChatSessionInputBarControlDataSource, RCMessagesMultiSelectedProtocol, RCReferencingViewDelegate, RCTextPreviewViewDelegate, RCMessagesLoadProtocol> {
     int _defaultLocalHistoryMessageCount;
@@ -143,6 +143,7 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
     if (self) {
+        self.viewHeight = SCREEN_HEIGHT;
         [self rcinit];
     }
     return self;
@@ -186,6 +187,9 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
         self.extendedLayoutIncludesOpaqueBars = YES;
         self.automaticallyAdjustsScrollViewInsets = NO;
     }
+    CGRect rect = self.view.bounds;
+    rect.size.height = self.viewHeight;
+    self.view.bounds = rect;
     [self initializedSubViews];
     [self registerAllInternalClass];
     [self registerCustomCellsAndMessages];
@@ -223,7 +227,7 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 
 - (void)viewWillLayoutSubviews {
     [super viewWillLayoutSubviews];
-    
+    CGSize s = self.view.bounds.size;
     self.messageSelectionToolbar.frame =
         CGRectMake(0, self.view.bounds.size.height - RC_ChatSessionInputBarHeight(self.chatSessionInputBarControl.currentControlStyle) - [self getSafeAreaExtraBottomHeight],
                    self.view.bounds.size.width, RC_ChatSessionInputBarHeight(self.chatSessionInputBarControl.currentControlStyle));
@@ -403,6 +407,9 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 }
 
 - (void)createChatSessionInputBarControl {
+    
+    CGFloat h = self.view.bounds.size.height;
+    
     if (!self.chatSessionInputBarControl && self.conversationType != ConversationType_SYSTEM) {
         self.chatSessionInputBarControl = [[RCChatSessionInputBarControl alloc]
                                        initWithFrame:CGRectMake(0, self.view.bounds.size.height - RC_ChatSessionInputBarHeight(RC_CHAT_INPUT_BAR_STYLE_TOOLBAR) -
@@ -431,15 +438,22 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
         CGFloat _conversationViewFrameY = CGRectGetMaxY([UIApplication sharedApplication].statusBarFrame) +
                                           CGRectGetMaxY(self.navigationController.navigationBar.bounds);
 
+        if(self.viewHeight != SCREEN_HEIGHT) {
+            _conversationViewFrameY = CGRectGetMaxY(self.navigationController.navigationBar.bounds);
+        }
+        
         if (RC_IOS_SYSTEM_VERSION_LESS_THAN(@"7.0")) {
 
             _conversationViewFrame.origin.y = 0;
         } else {
             _conversationViewFrame.origin.y = _conversationViewFrameY;
         }
+        
+        
 
         _conversationViewFrame.size.height =
             self.view.bounds.size.height - self.chatSessionInputBarControl.frame.size.height - _conversationViewFrameY;
+        
         self.dataSource.customFlowLayout.sectionInset = UIEdgeInsetsMake(20, 0, 0, 0);
         self.conversationMessageCollectionView =
             [[RCBaseCollectionView alloc] initWithFrame:_conversationViewFrame collectionViewLayout:self.dataSource.customFlowLayout];
@@ -1632,8 +1646,22 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
     case PLUGIN_BOARD_ITEM_LOCATION_TAG:
     case PLUGIN_BOARD_ITEM_FILE_TAG:
     case INPUT_MENTIONED_SELECT_TAG: {
-        viewController.modalPresentationStyle = UIModalPresentationFullScreen;
-        [self.navigationController presentViewController:viewController animated:YES completion:nil];
+        
+        if(self.viewHeight != SCREEN_HEIGHT) {
+            if ([viewController isKindOfClass:UINavigationController.class]) {
+                viewController.modalPresentationStyle = UIModalPresentationCustom;
+                viewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+                [self presentViewController:viewController animated:YES completion:nil];
+            }else{
+                viewController.modalPresentationStyle = UIModalPresentationFullScreen;
+                [self.navigationController presentViewController:viewController animated:YES completion:nil];
+            }
+        }else{
+            viewController.modalPresentationStyle = UIModalPresentationFullScreen;
+            
+            [self.navigationController presentViewController:viewController animated:YES completion:nil];
+        }
+        
     } break;
     default: { } break; }
 }
@@ -2405,6 +2433,7 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
         [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"Delete")
                                    action:@selector(onDeleteMessage:)];
 
+    //撤回
     UIMenuItem *recallItem =
         [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"Recall")
                                    action:@selector(onRecallMessage:)];
@@ -2435,9 +2464,10 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
         if ([self.util canRecallMessageOfModel:model]) {
             [items addObject:recallItem];
         }
+        /*
         if ([self.util canReferenceMessage:model]) {
             [items addObject:referItem];
-        }        
+        }*/
     }
     
     BOOL translateEnable = [self isTranslationEnable] && !model.isTranslated && [model.content isKindOfClass:[RCTextMessage class]] && !model.translating;
@@ -2447,9 +2477,10 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
                                    action:@selector(onTranslateMessageCell:)];
         [items addObject:transItem];
     }
+    /*
     if (self.conversationType != ConversationType_SYSTEM) {
         [items addObject:multiSelectItem];
-    }
+    }*/
     
     return items.copy;
 }
