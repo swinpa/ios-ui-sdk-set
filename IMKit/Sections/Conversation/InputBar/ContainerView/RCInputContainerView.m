@@ -88,7 +88,26 @@
 
 #pragma mark - UITextViewDelegate
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
+    
+    
+    NSString *result = @"";
+    NSString *tmp = textView.text;
+    result = [tmp stringByReplacingCharactersInRange:range withString:text];
+    // 检查是否有高亮文本（拼音还没选中）
+//    UITextRange *markedRange = [textView markedTextRange];
+//    UITextPosition *position = [textView positionFromPosition:markedRange.start offset:0];
+//    if (markedRange && position) {
+//        // 正在输入拼音，不做限制
+//    }else{
+//        NSString *tmp = textView.text;
+//        result = [tmp stringByReplacingCharactersInRange:range withString:text];
+//    }
+    
+    
     BOOL isShould = [self.delegate inputTextView:textView shouldChangeTextInRange:range replacementText:text];
+    if(result.length >200) {
+        isShould = NO;
+    }
     if ([text isEqualToString:@"\n"]) {
         self.inputTextView.text = @"";
         [self textViewDidChange:textView];
