@@ -607,5 +607,8 @@ typedef enum : NSUInteger {
 /// 开发者如果想更换转发消息的选择会话界面，可以重写此方法，弹出自定义的选择会话界面，选择结束之后，调用completedBlock传入选中的会话即可。
 - (void)forwardMessage:(NSInteger)index completed:(void (^)(NSArray<RCConversation *> *conversationList))completedBlock;
 
+
+- (void)onCopyMessage:(id)sender;
+
 @end
 NS_ASSUME_NONNULL_END

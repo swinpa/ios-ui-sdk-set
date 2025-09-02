@@ -500,6 +500,10 @@ typedef NS_ENUM(NSInteger, CCSightLayoutAlignMent) {
     if ([self.delegate respondsToSelector:@selector(prefersControlBardHidden)] && [self.delegate prefersControlBardHidden]) {
         return;
     }
+    if ([self.delegate respondsToSelector:@selector(cancel)]) {
+        [self.delegate cancel];
+        return;
+    }
     if (self.bottomView.hidden) {
         self.bottomView.hidden = NO;
     }

@@ -470,8 +470,9 @@ static NSString *const reuseIdentifier = @"Cell";
     _toolBar.hidden = YES;
     // add button for bottom bar
     _btnSend = [[RCBaseButton alloc] init];
-    [_btnSend setTitle:RCLocalizedString(@"Send") forState:UIControlStateNormal];
+    [_btnSend setTitle:RCLocalizedString(@"Done") forState:UIControlStateNormal];
     [_btnSend setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    _btnSend.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
     [_btnSend addTarget:self action:@selector(btnSendCliced:) forControlEvents:UIControlEventTouchUpInside];
     _btnSend.contentHorizontalAlignment = UIControlContentHorizontalAlignmentRight;
     [_toolBar addSubview:_btnSend];
@@ -587,9 +588,9 @@ static NSString *const reuseIdentifier = @"Cell";
 - (void)_updateBottomSendImageCountButton {
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.selectedAssets.count && self.toolBar) {
-            [self.btnSend setTitle:[NSString stringWithFormat:@"%@ (%lu)",RCLocalizedString(@"Send"), (unsigned long)self.selectedAssets.count] forState:(UIControlStateNormal)];
+            [self.btnSend setTitle:[NSString stringWithFormat:@"%@ (%lu)",RCLocalizedString(@"Done"), (unsigned long)self.selectedAssets.count] forState:(UIControlStateNormal)];
         } else {
-            [self.btnSend setTitle:RCLocalizedString(@"Send") forState:(UIControlStateNormal)];
+            [self.btnSend setTitle:RCLocalizedString(@"Done") forState:(UIControlStateNormal)];
         }
     });
 }

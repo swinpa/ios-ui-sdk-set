@@ -406,13 +406,13 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     [self.view addSubview:_bottomView];
     // add button for bottom bar
     _sendButton = [[RCBaseButton alloc] init];
-    [_sendButton setTitle:RCLocalizedString(@"Send") forState:UIControlStateNormal];
+    [_sendButton setTitle:RCLocalizedString(@"Done") forState:UIControlStateNormal];
     [_sendButton setTitleColor:RCResourceColor(@"photoPreview_send_disable", @"0xffffff")
                       forState:UIControlStateDisabled];
     
     
     
-    _sendButton.titleLabel.font = [UIFont systemFontOfSize:12 weight:UIFontWeightMedium];
+    _sendButton.titleLabel.font = [UIFont systemFontOfSize:16 weight:UIFontWeightMedium];
     [_sendButton addTarget:self action:@selector(sendImageMessageButton:) forControlEvents:UIControlEventTouchUpInside];
     [_bottomView addSubview:_sendButton];
     [self _updateBottomSendImageCountButton];
@@ -634,7 +634,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     dispatch_async(dispatch_get_main_queue(), ^{
         if (self.selectedArr.count && self.bottomView) {
             self.sendButton.enabled = YES;
-            [self.sendButton setTitle:RCLocalizedString(@"Send") forState:(UIControlStateNormal)];
+            [self.sendButton setTitle:RCLocalizedString(@"Done") forState:(UIControlStateNormal)];
 //            if ([RCKitUtility isRTL]) {
 //                [self.sendButton setTitle:[NSString stringWithFormat:@"(%lu) %@", (unsigned long)self.selectedArr.count, RCLocalizedString(@"Send")] forState:(UIControlStateNormal)];
 //            } else {
@@ -642,7 +642,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
 //            }
         } else {
             self.sendButton.enabled = NO;
-            [self.sendButton setTitle:RCLocalizedString(@"Send") forState:(UIControlStateNormal)];
+            [self.sendButton setTitle:RCLocalizedString(@"Done") forState:(UIControlStateNormal)];
         }
     });
 }
