@@ -67,6 +67,8 @@
 #import "RCStreamUtilities.h"
 
 #import "RCConversationViewController+STT.h"
+#import "CCPopoverView.h"
+
 
 #define UNREAD_MESSAGE_MAX_COUNT 99
 #define COLLECTION_VIEW_REFRESH_CONTROL_HEIGHT 30
@@ -223,6 +225,8 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
     if (self.disableSystemEmoji) {
         [self disableSystemDefaultEmoji];
     }
+    
+    
 }
 
 - (void)viewWillLayoutSubviews {
@@ -2422,6 +2426,8 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
         [menu setMenuVisible:YES animated:YES];
     }
 }
+
+
 
 - (NSArray<UIMenuItem *> *)getLongTouchMessageCellMenuList:(RCMessageModel *)model {
     if ([model.content isKindOfClass:RCStreamMessage.class]) {

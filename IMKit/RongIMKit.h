@@ -180,6 +180,9 @@
 #import "RCAlumListTableViewController.h"
 // STT
 #import <RongIMKit/RCSTTContentViewModel.h>
+
+#import "CCPopoverView.h"
+
 #else
 /// IMKit核心类
 #import "RCIM.h"
@@ -356,4 +359,7 @@
 #import "RCAlumListTableViewController.h"
 // STT
 #import "RCSTTContentViewModel.h"
+
+#import "CCPopoverView.h"
+
 #endif

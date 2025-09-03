@@ -8,7 +8,7 @@
 
 #import "RCSightPlayerOverlayView.h"
 #import "RongSightAdaptiveHeader.h"
-#define RCBottomViewAlignBottom ([RCKitUtility getWindowSafeAreaInsets].bottom + 54)
+#define RCBottomViewAlignBottom ([RCKitUtility getWindowSafeAreaInsets].bottom + 20)
 #define RCTopViewAlignHeight ([RCKitUtility getWindowSafeAreaInsets].top + 66)
 #define RCCloseButtonAlignTop [RCKitUtility getWindowSafeAreaInsets].top+30
 @interface RCSightPlayerOverlayView ()
@@ -72,6 +72,9 @@
     if (!_slider) {
         _slider = [[UISlider alloc] init];
         [_slider setThumbImage:RCResourceImage(@"player_slider_pan") forState:UIControlStateNormal];
+//        [_slider setThumbImage:nil forState:UIControlStateNormal];
+        _slider.minimumTrackTintColor = UIColor.whiteColor;
+        _slider.maximumTrackTintColor = [UIColor.blackColor colorWithAlphaComponent:0.6];
         [_slider addTarget:self action:@selector(sliderValueChanged:) forControlEvents:UIControlEventValueChanged];
         [_slider addTarget:self
                       action:@selector(sliderUpInside)
@@ -174,10 +177,16 @@
 
         [contentView addSubview:self.slider];
         [self constraintCenterYInSuperview:self.slider];
-        [self constraintView:self.currentTimeLab toView:self.slider horizontalSpace:8];
-        [self constraintView:self.slider toView:self.durationTimeLabel horizontalSpace:8];
+//        [self constraintView:self.currentTimeLab toView:self.slider horizontalSpace:8];
+//        [self constraintView:self.slider toView:self.durationTimeLabel horizontalSpace:8];
+        [self constraintAlignSuperView:self.slider alignSpace:28 AlignMent:CCSightLayoutAlignLeading];
+        [self constraintAlignSuperView:self.slider alignSpace:28 AlignMent:CCSightLayoutAlignTrailing];
         [self constraintAlignSuperView:self.slider alignSpace:0 AlignMent:CCSightLayoutAlignTop];
         [self constraintAlignSuperView:self.slider alignSpace:0 AlignMent:CCSightLayoutAlignBottom];
+        
+        self.playBtn.hidden = YES;
+        self.currentTimeLab.hidden = YES;
+        self.durationTimeLabel.hidden = YES;
     }
     return _bottomView;
 }
@@ -215,8 +224,8 @@
 
     [self installHorizontalFlexibleConstraintsForView:self.bottomView];
     self.bottomConstraint =
-        [self constraintAlignSuperView:self.bottomView alignSpace:-RCBottomViewAlignBottom AlignMent:CCSightLayoutAlignBottom];
-    self.bottomView.hidden = YES;
+        [self constraintAlignSuperView:self.bottomView alignSpace:RCBottomViewAlignBottom AlignMent:CCSightLayoutAlignBottom];
+//    self.bottomView.hidden = YES;
 
     self.indicatorView =
         [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
