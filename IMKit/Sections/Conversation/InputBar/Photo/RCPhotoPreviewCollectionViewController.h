@@ -18,8 +18,9 @@
 @property (nonatomic, copy) void (^finishiPreviewAndSendImage)(NSArray *selectArr, BOOL isFull);
 
 @property (nonatomic, assign) BOOL isFull;
+@property (nonatomic, assign) CGFloat viewHeight;
 
-+ (instancetype)imagePickerViewController;
++ (instancetype)imagePickerViewController:(CGSize)itemSize;
 
 - (void)previewPhotosWithSelectArr:(NSMutableArray *)selectedArr
                       allPhotosArr:(NSArray *)allPhotosArr

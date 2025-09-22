@@ -57,6 +57,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
         self.allPhotosArr = [NSArray new];
         self.selectedArr = [NSMutableArray new];
         self.selectedVideoArray = [NSMutableArray new];
+        self.viewHeight = SCREEN_HEIGHT;
     }
     return self;
 }
@@ -67,7 +68,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     self.collectionView.scrollsToTop = NO;
     self.collectionView.backgroundColor = [UIColor blackColor];
     self.collectionView.showsHorizontalScrollIndicator = NO;
-    self.collectionView.contentSize = CGSizeMake(SCREEN_WIDTH * self.previewPhotosArr.count, SCREEN_HEIGHT);
+    self.collectionView.contentSize = CGSizeMake(SCREEN_WIDTH * self.previewPhotosArr.count, self.view.bounds.size.height);
     self.collectionView.pagingEnabled = YES;
     UITapGestureRecognizer *gesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(tapAction:)];
     [self.collectionView addGestureRecognizer:gesture];
@@ -108,10 +109,10 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
 }
 
 #pragma mark - Public Methods
-+ (instancetype)imagePickerViewController {
++ (instancetype)imagePickerViewController:(CGSize)itemSize {
     RCPhotoPreviewCollectionViewFlowLayout *flowLayout = [[RCPhotoPreviewCollectionViewFlowLayout alloc] init];
     [flowLayout setScrollDirection:UICollectionViewScrollDirectionHorizontal];
-    flowLayout.itemSize = CGSizeMake(SCREEN_WIDTH, SCREEN_HEIGHT);
+    flowLayout.itemSize = itemSize;//CGSizeMake(SCREEN_WIDTH, SCREEN_HEIGHT);
     flowLayout.minimumInteritemSpacing = 0;
     flowLayout.minimumLineSpacing = 0;
     flowLayout.sectionInset = UIEdgeInsetsMake(0, 0, 0, 0);
@@ -360,6 +361,11 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     if ([UIApplication sharedApplication].statusBarFrame.size.height > 25) {
         originY = 44;
     }
+    
+    if(self.viewHeight < SCREEN_HEIGHT - 100) {
+        originY = 0.0;
+    }
+    
     self.topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, originY + 44)];
     _topView.backgroundColor = [HEXCOLOR(0x222222) colorWithAlphaComponent:0.8];
     [self.view addSubview:_topView];
@@ -373,6 +379,10 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
         backButton.frame = CGRectMake(10, _topView.frame.size.height / 2, 44, 44);
     } else {
         backButton.frame = CGRectMake(10, _topView.frame.size.height / 2 - 44 / 2, 44, 44);
+    }
+    
+    if(self.viewHeight < SCREEN_HEIGHT - 100) {
+        backButton.frame = CGRectMake(10, 0, 44, 44);
     }
 
     [backButton addTarget:self action:@selector(backButtonAction) forControlEvents:UIControlEventTouchUpInside];
@@ -399,10 +409,13 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
 
 - (void)createBottomView {
     CGFloat safeAreaHomeBarHeight = [RCKitUtility getWindowSafeAreaInsets].bottom;
+    
     _bottomView = [[UIView alloc]
-        initWithFrame:CGRectMake(0, self.view.bounds.size.height - 49 - safeAreaHomeBarHeight,
+        initWithFrame:CGRectMake(0, self.viewHeight - 49 - safeAreaHomeBarHeight,
                                  self.view.bounds.size.width, 49 + safeAreaHomeBarHeight)];
     _bottomView.backgroundColor = [HEXCOLOR(0x222222) colorWithAlphaComponent:0.8];
+    
+    
     [self.view addSubview:_bottomView];
     // add button for bottom bar
     _sendButton = [[RCBaseButton alloc] init];

@@ -253,7 +253,7 @@ static NSString *const reuseIdentifier = @"Cell";
     }
     
     RCPhotoPreviewCollectionViewController *previewController =
-    [RCPhotoPreviewCollectionViewController imagePickerViewController];
+    [RCPhotoPreviewCollectionViewController imagePickerViewController:self.view.bounds.size];
     previewController.isFull = self.isFull;
     [previewController previewPhotosWithSelectArr:@[selectModel]
                                      allPhotosArr:@[selectModel]
@@ -271,6 +271,7 @@ static NSString *const reuseIdentifier = @"Cell";
     [previewController setFinishiPreviewAndSendImage:^(NSArray *selectArr, BOOL isFull) {
         self.sendPhotosBlock(selectArr, isFull);
     }];
+    previewController.viewHeight =  self.view.bounds.size.height;
     [self.navigationController pushViewController:previewController animated:YES];
 }
 
@@ -339,7 +340,7 @@ static NSString *const reuseIdentifier = @"Cell";
 
 - (void)previewBtnCliced:(UIButton *)sender {
     RCPhotoPreviewCollectionViewController *previewController =
-    [RCPhotoPreviewCollectionViewController imagePickerViewController];
+    [RCPhotoPreviewCollectionViewController imagePickerViewController:self.view.bounds.size];
     previewController.isFull = self.isFull;
     [previewController previewPhotosWithSelectArr:self.selectedAssets
                                      allPhotosArr:self.assetArray
@@ -356,6 +357,7 @@ static NSString *const reuseIdentifier = @"Cell";
     [previewController setFinishiPreviewAndSendImage:^(NSArray *selectArr, BOOL isFull) {
         self.sendPhotosBlock(selectArr, isFull);
     }];
+    previewController.viewHeight =  self.view.bounds.size.height;
     [self.navigationController pushViewController:previewController animated:YES];
 }
 
