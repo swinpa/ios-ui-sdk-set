@@ -1565,7 +1565,7 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
     [self sendMessage:rcTextMessage pushContent:nil];
 }
 
-- (void)inputTextView:(UITextView *)inputTextView
+- (BOOL)inputTextView:(UITextView *)inputTextView
     shouldChangeTextInRange:(NSRange)range
             replacementText:(NSString *)text {
     [self p_sendTypingStatusIfNeedWithText:text];

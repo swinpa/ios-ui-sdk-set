@@ -181,7 +181,7 @@ typedef enum : NSUInteger {
 /// - Parameter inputTextView: 文本输入框
 /// - Parameter range:         当前操作的范围
 /// - Parameter text:          插入的文本
-- (void)inputTextView:(UITextView *)inputTextView
+- (BOOL)inputTextView:(UITextView *)inputTextView
     shouldChangeTextInRange:(NSRange)range
             replacementText:(NSString *)text;
 

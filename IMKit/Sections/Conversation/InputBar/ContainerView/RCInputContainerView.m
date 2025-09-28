@@ -466,7 +466,7 @@
         break;
     case RC_CHAT_INPUT_BAR_STYLE_TOOLBAR:
         // 顺序：左 -> switchButton(隐藏) -> recordButton -> emojiButton -> additionalButton(隐藏) -> 右
-        format = @"H:|-16-[_recordButton]-8-[_switchButton(BUTTONWIDTH)]-16-|";
+        format = @"H:|-16-[_switchButton(BUTTONWIDTH)]-8-[_recordButton]-16-|";
         break;
     default:
         break;

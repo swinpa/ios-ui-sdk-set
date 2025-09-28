@@ -541,10 +541,13 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 }
 
 - (BOOL)inputTextView:(UITextView *)inputTextView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text{
+    BOOL shouldChange = YES;
     if ([self.delegate respondsToSelector:@selector(inputTextView:shouldChangeTextInRange:replacementText:)]) {
-        [self.delegate inputTextView:inputTextView shouldChangeTextInRange:range replacementText:text];
+        shouldChange = [self.delegate inputTextView:inputTextView shouldChangeTextInRange:range replacementText:text];
     }
-
+    if(!shouldChange) {
+        return  shouldChange;
+    }
     if ([text isEqualToString:@"\n"]) {
         if ([self.delegate respondsToSelector:@selector(inputTextViewDidTouchSendKey:)]) {
             NSString *formatString =

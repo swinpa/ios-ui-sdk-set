@@ -367,7 +367,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     }
     
     self.topView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, SCREEN_WIDTH, originY + 44)];
-    _topView.backgroundColor = [HEXCOLOR(0x222222) colorWithAlphaComponent:0.8];
+    _topView.backgroundColor = [HEXCOLOR(0x1D1618) colorWithAlphaComponent:1.0];
     [self.view addSubview:_topView];
     RCBaseButton *backButton = [RCBaseButton buttonWithType:UIButtonTypeCustom];
     UIImage *img = RCResourceImage(@"navigator_white_back");
@@ -413,7 +413,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     _bottomView = [[UIView alloc]
         initWithFrame:CGRectMake(0, self.viewHeight - 49 - safeAreaHomeBarHeight,
                                  self.view.bounds.size.width, 49 + safeAreaHomeBarHeight)];
-    _bottomView.backgroundColor = [HEXCOLOR(0x222222) colorWithAlphaComponent:0.8];
+    _bottomView.backgroundColor = [HEXCOLOR(0x1D1618) colorWithAlphaComponent:1.0];
     
     
     [self.view addSubview:_bottomView];
@@ -439,7 +439,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     [_bottomView addSubview:_fullButton];
 
     _editButton = [RCBaseButton buttonWithType:(UIButtonTypeCustom)];
-    [_editButton setTitle:RCLocalizedString(@"Edit") forState:(UIControlStateNormal)];
+//    [_editButton setTitle:RCLocalizedString(@"Edit") forState:(UIControlStateNormal)];
     [_editButton setTitleColor:RCResourceColor(@"photoPreview_send_disable", @"0x959595")
                       forState:UIControlStateNormal];
     [_editButton addTarget:self action:@selector(editBtnClick:) forControlEvents:(UIControlEventTouchUpInside)];
@@ -463,7 +463,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_sendButton)]];
         [_bottomView
-            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_editButton(22]"
+            addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:|-13-[_editButton(22)]"
                                                                    options:kNilOptions
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_editButton)]];
