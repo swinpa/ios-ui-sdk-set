@@ -9,6 +9,7 @@
 #import "UIImage+RCDynamicImage.h"
 #include <objc/runtime.h>
 #import "RCKitConfig.h"
+#import "RCKitUtility.h"
 static const NSString *RCImageLocalPathKey = @"RCImageLocalPathKey";
 
 @implementation UIImage (RCDynamicImage)
@@ -99,4 +100,19 @@ static const NSString *RCImageLocalPathKey = @"RCImageLocalPathKey";
 - (NSString *)rc_imageLocalPath {
     return objc_getAssociatedObject(self, &RCImageLocalPathKey);
 }
+
+
+- (UIImage*)mirror {
+    
+    if(RCKitUtility.isRTL) {
+        if(!self.CGImage) {
+            return  self;
+        }
+        UIImage *img = [UIImage imageWithCGImage:self.CGImage scale:self.scale orientation:UIImageOrientationUpMirrored];
+        return [img imageWithRenderingMode:UIImageRenderingModeAlwaysOriginal];
+    }else{
+        return  self;
+    }
+}
+
 @end

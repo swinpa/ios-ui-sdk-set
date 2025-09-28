@@ -370,19 +370,19 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     _topView.backgroundColor = [HEXCOLOR(0x1D1618) colorWithAlphaComponent:1.0];
     [self.view addSubview:_topView];
     RCBaseButton *backButton = [RCBaseButton buttonWithType:UIButtonTypeCustom];
-    UIImage *img = RCResourceImage(@"navigator_white_back");
+    UIImage *img = RCResourceImage(@"navigator_btn_back_dark");
     img = [RCSemanticContext imageflippedForRTL:img];
     [backButton setImage:img forState:UIControlStateNormal];
     [backButton setContentEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 6)];
     [backButton sizeToFit];
     if ([UIApplication sharedApplication].statusBarFrame.size.height > 25) {
-        backButton.frame = CGRectMake(10, _topView.frame.size.height / 2, 44, 44);
+        backButton.frame = CGRectMake(10, _topView.frame.size.height / 2, 30, 30);
     } else {
-        backButton.frame = CGRectMake(10, _topView.frame.size.height / 2 - 44 / 2, 44, 44);
+        backButton.frame = CGRectMake(10, _topView.frame.size.height / 2 - 30 / 2, 30, 30);
     }
     
     if(self.viewHeight < SCREEN_HEIGHT - 100) {
-        backButton.frame = CGRectMake(10, 0, 44, 44);
+        backButton.frame = CGRectMake(10, (_topView.frame.size.height-30)/2.0, 30, 30);
     }
 
     [backButton addTarget:self action:@selector(backButtonAction) forControlEvents:UIControlEventTouchUpInside];

@@ -17,6 +17,7 @@
 #import "RCAlertView.h"
 #import "RCMBProgressHUD.h"
 #import "RCBaseButton.h"
+#import "UIImage+RCDynamicImage.h"
 
 #define WIDTH ((SCREEN_WIDTH - 20) / 4)
 #define SIZE CGSizeMake(WIDTH, WIDTH)
@@ -453,7 +454,7 @@ static NSString *const reuseIdentifier = @"Cell";
     //navigator_btn_back_dark
     
     RCBaseButton *btnBack = [[RCBaseButton alloc] initWithFrame:CGRectMake(0, 0, 30, 30)];
-    [btnBack setImage:RCResourceImage(@"navigator_btn_back_dark") forState:UIControlStateNormal];
+    [btnBack setImage:RCResourceImage(@"navigator_btn_back_dark").mirror forState:UIControlStateNormal];
     [btnBack addTarget:self action:@selector(btnBackClick:) forControlEvents:UIControlEventTouchUpInside];
     
     UIBarButtonItem *leftItem = [[UIBarButtonItem alloc] initWithCustomView:btnBack];

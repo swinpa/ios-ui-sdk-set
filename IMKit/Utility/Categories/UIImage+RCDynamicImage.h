@@ -17,6 +17,9 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIImage *)rc_imageWithLocalPath:(NSString *)path;
 
 - (BOOL)rc_needReloadImage;
+
+- (UIImage*)mirror;
+
 @end
 
 NS_ASSUME_NONNULL_END
