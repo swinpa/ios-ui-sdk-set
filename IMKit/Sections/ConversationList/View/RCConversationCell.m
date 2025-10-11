@@ -645,7 +645,7 @@
         _conversationTitle = [[UILabel alloc] init];
         _conversationTitle.translatesAutoresizingMaskIntoConstraints = NO;
         _conversationTitle.backgroundColor = [UIColor clearColor];
-        _conversationTitle.font = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];//[[RCKitConfig defaultConfig].font fontOfSecondLevel];
+        _conversationTitle.font = [UIFont systemFontOfSize:15 weight:UIFontWeightSemibold];//[[RCKitConfig defaultConfig].font fontOfSecondLevel];
         _conversationTitle.textColor = HEXCOLOR(0x333333);//[RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:[HEXCOLOR(0xffffff) colorWithAlphaComponent:0.9]];
     }
     return _conversationTitle;
