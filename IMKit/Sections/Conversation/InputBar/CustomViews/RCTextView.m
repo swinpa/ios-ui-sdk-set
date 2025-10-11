@@ -36,4 +36,16 @@
         [self.textChangeDelegate rctextView:self textDidChange:text];
     }
 }
+
+- (void)paste:(id)sender {
+    self.isPasting = YES;
+    [super paste:sender];
+    // 延迟清除标志，防止误判
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)),
+                   dispatch_get_main_queue(), ^{
+        self.isPasting = NO;
+    });
+}
+
+
 @end

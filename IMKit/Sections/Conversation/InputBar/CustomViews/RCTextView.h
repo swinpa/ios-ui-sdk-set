@@ -26,6 +26,7 @@
   默认值为NO。
  */
 @property (nonatomic, assign) BOOL disableActionMenu;
+@property (nonatomic, assign) BOOL isPasting;
 
 @property (nonatomic, weak) id<RCTextViewDelegate> textChangeDelegate;
 
