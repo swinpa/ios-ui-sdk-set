@@ -89,30 +89,14 @@
 #pragma mark - UITextViewDelegate
 - (BOOL)textView:(UITextView *)textView shouldChangeTextInRange:(NSRange)range replacementText:(NSString *)text {
     
-    
-    NSString *result = @"";
-    NSString *tmp = textView.text;
-    result = [tmp stringByReplacingCharactersInRange:range withString:text];
-    // 检查是否有高亮文本（拼音还没选中）
-//    UITextRange *markedRange = [textView markedTextRange];
-//    UITextPosition *position = [textView positionFromPosition:markedRange.start offset:0];
-//    if (markedRange && position) {
-//        // 正在输入拼音，不做限制
-//    }else{
-//        NSString *tmp = textView.text;
-//        result = [tmp stringByReplacingCharactersInRange:range withString:text];
-//    }
-    
-    
     BOOL isShould = [self.delegate inputTextView:textView shouldChangeTextInRange:range replacementText:text];
-    if(result.length >200) {
-        isShould = NO;
-    }
     if ([text isEqualToString:@"\n"]) {
         self.inputTextView.text = @"";
         [self textViewDidChange:textView];
     }else{
-        [self changeInputTextViewRange];
+        if(isShould){
+            [self changeInputTextViewRange];
+        }
     }
     
     [[RCExtensionService sharedService] inputTextViewDidChange:textView inInputBar:(RCChatSessionInputBarControl *)self.superview];
@@ -631,8 +615,9 @@
         _inputTextView.textContainerInset = textEdge;
         [_inputTextView setExclusiveTouch:YES];
 //        [_inputTextView setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x999999) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
-        [_inputTextView setTextColor:HEXCOLOR(0x999999)];
-        [_inputTextView setFont:[[RCKitConfig defaultConfig].font fontOfSecondLevel]];
+        [_inputTextView setTextColor:HEXCOLOR(0x333333)];
+        UIFont *f = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
+        [_inputTextView setFont:f];
         [_inputTextView setReturnKeyType:UIReturnKeySend];
         _inputTextView.backgroundColor = HEXCOLOR(0xF7F7F7);//RCDYCOLOR(0xffffff, 0x2d2d2d);
         _inputTextView.enablesReturnKeyAutomatically = YES;
