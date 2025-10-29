@@ -16,6 +16,8 @@
 #import <MobileCoreServices/UTCoreTypes.h>
 #import "RCKitConfig.h"
 #import "RCAlertView.h"
+#import "UIImage+RCDynamicImage.h"
+#import <objc/runtime.h>
 
 static NSString *const cellReuseIdentifier = @"cell";
 
@@ -127,7 +129,7 @@ static NSString *const cellReuseIdentifier = @"cell";
         navigationBarAppearance.backgroundColor = HEXCOLOR(0x1D1618);
         navigationBarAppearance.backgroundEffect = nil;
         
-        navigationBarAppearance.shadowImage = [UIImage new];
+        navigationBarAppearance.shadowImage = [UIImage rc_imageWithColor:UIColor.clearColor];
         
         self.navigationController.navigationBar.standardAppearance = navigationBarAppearance;
         self.navigationController.navigationBar.scrollEdgeAppearance = navigationBarAppearance;
@@ -377,11 +379,15 @@ static NSString *const cellReuseIdentifier = @"cell";
     imagePickerVC.count = assetsGroup.count;
     imagePickerVC.currentAsset = assetsGroup.asset;
     imagePickerVC.title = assetsGroup.albumName;
+    
     __weak typeof(self) weakself = self;
     [imagePickerVC setSendPhotosBlock:^(NSArray *photos, BOOL isFull) {
         NSMutableArray *selectedPhotos = [NSMutableArray array];
         [weakself handlePhotos:[photos mutableCopy] result:selectedPhotos full:isFull];
     }];
+    imagePickerVC.openCameraHandler = ^{
+        weakself.openCameraHandler();
+    };
 
     [self.navigationController pushViewController:imagePickerVC animated:animated];
 }
@@ -411,3 +417,29 @@ static NSString *const cellReuseIdentifier = @"cell";
     return _tipsLabel;
 }
 @end
+
+
+
+@implementation UIImagePickerController (Block)
+
+#pragma mark - Runtime 关联对象
+
+static const void *kFinishPickingHandlerKey = &kFinishPickingHandlerKey;
+
+- (void)setFinishPickingHandler:(DidFinishPickingHandler _Nullable)finishPickingHandler {
+    objc_setAssociatedObject(self, kFinishPickingHandlerKey, finishPickingHandler, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    
+    // 自动设置代理为自身，确保回调生效
+//    self.delegate = (id<UIImagePickerControllerDelegate, UINavigationControllerDelegate>)self;
+}
+
+- (DidFinishPickingHandler _Nullable)finishPickingHandler {
+    return objc_getAssociatedObject(self, kFinishPickingHandlerKey);
+}
+
+
+@end
+
+
+
+

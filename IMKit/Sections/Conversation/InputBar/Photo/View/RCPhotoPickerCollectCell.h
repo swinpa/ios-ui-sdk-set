@@ -38,3 +38,12 @@
 - (void)configPickerCellWithItem:(RCAssetModel *)model delegate:(id<RCPhotoPickerCollectCellDelegate>)delegate;
 
 @end
+
+typedef void(^DidClickHandler)(void);
+
+@interface RCPhotoPickerCollectCameraCell : RCBaseCollectionViewCell
+
+@property (nonatomic, copy) DidClickHandler clickHandler;
+
+
+@end

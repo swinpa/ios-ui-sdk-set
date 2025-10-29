@@ -17,6 +17,11 @@ NS_ASSUME_NONNULL_BEGIN
 + (UIImage *)rc_imageWithLocalPath:(NSString *)path;
 
 - (BOOL)rc_needReloadImage;
+/// 根据颜色生成一个指定尺寸的纯色图片
++ (UIImage *)rc_imageWithColor:(UIColor *)color size:(CGSize)size;
+
+/// 快捷方法：生成 1x1 像素的纯色图片
++ (UIImage *)rc_imageWithColor:(UIColor *)color;
 
 - (UIImage*)mirror;
 

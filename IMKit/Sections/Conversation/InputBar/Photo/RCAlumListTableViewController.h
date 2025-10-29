@@ -25,6 +25,9 @@ typedef enum : NSUInteger {
 @property (nonatomic, assign) RCAlbumType type;
 @property (nonatomic, strong) NSArray *libraryList;
 @property (nonatomic, weak) id<RCAlbumListViewControllerDelegate> delegate;
+@property (nonatomic, copy) void (^openCameraHandler)( void );
+@property (nonatomic, assign) BOOL isHalfScreen;
+- (void)dismissCurrentModelViewController;
 @end
 
 @protocol RCAlbumListViewControllerDelegate <NSObject>
@@ -32,5 +35,14 @@ typedef enum : NSUInteger {
 - (void)albumListViewController:(RCAlumListTableViewController *)albumListViewController
                  selectedImages:(NSArray *)selectedImages
                 isSendFullImage:(BOOL)enable;
+
+@end
+
+typedef void(^DidFinishPickingHandler)(UIImage *image,NSDictionary *editingInfo);
+
+@interface UIImagePickerController (Block)
+
+@property (nonatomic, copy,nullable) DidFinishPickingHandler finishPickingHandler;
+
 
 @end

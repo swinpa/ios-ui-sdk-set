@@ -25,6 +25,16 @@
     return model;
 }
 
+
+- (instancetype)init
+{
+    self = [super init];
+    if (self) {
+        self.cellReuseIdentifier = @"Cell";
+    }
+    return self;
+}
+
 - (CGFloat)imageSize {
     if (!_imageSize) {
         [[RCAssetHelper shareAssetHelper] getAssetDataSizeWithAsset:self.asset
@@ -153,3 +163,4 @@
 }
 
 @end
+

@@ -235,3 +235,72 @@
     return _selectbutton;
 }
 @end
+
+
+@interface RCPhotoPickerCollectCameraCell ()
+/**
+ *  显示图片
+ */
+@property (nonatomic, strong) UIImageView *imageView;
+@property (nonatomic, strong) UIButton *button;
+
+@end
+@implementation RCPhotoPickerCollectCameraCell
+
+#pragma mark - Init
+- (instancetype)initWithFrame:(CGRect)frame {
+    if (self = [super initWithFrame:frame]) {
+        [self.contentView addSubview:self.imageView];
+        [self.contentView addSubview:self.button];
+        // 关闭 autoresizingMask
+        self.imageView.translatesAutoresizingMaskIntoConstraints = NO;
+        self.button.translatesAutoresizingMaskIntoConstraints = NO;
+        // 添加约束
+        [NSLayoutConstraint activateConstraints:@[
+            // 水平居中
+            [self.imageView.centerXAnchor constraintEqualToAnchor:self.contentView.centerXAnchor],
+            // 垂直居中
+            [self.imageView.centerYAnchor constraintEqualToAnchor:self.contentView.centerYAnchor],
+            // 宽度 32
+            [self.imageView.widthAnchor constraintEqualToConstant:32],
+            // 高度 32
+            [self.imageView.heightAnchor constraintEqualToConstant:32]
+        ]];
+        
+        [NSLayoutConstraint activateConstraints:@[
+            // 水平居中
+            [self.button.leadingAnchor constraintEqualToAnchor:self.contentView.leadingAnchor],
+            // 垂直居中
+            [self.button.trailingAnchor constraintEqualToAnchor:self.contentView.trailingAnchor],
+            [self.button.topAnchor constraintEqualToAnchor:self.contentView.topAnchor],
+            [self.button.bottomAnchor constraintEqualToAnchor:self.contentView.bottomAnchor]
+        ]];
+    }
+    return self;
+}
+
+- (UIImageView *)imageView{
+    if (!_imageView) {
+        _imageView = [[UIImageView alloc] initWithFrame:CGRectZero];
+        _imageView.image = RCResourceImage(@"photo_picker_camera");
+    }
+    return _imageView;
+}
+
+- (UIButton *)button{
+    if (!_button) {
+        _button = [[UIButton alloc] initWithFrame:CGRectZero];
+        [_button addTarget:self action:@selector(didClick:) forControlEvents:UIControlEventTouchUpInside];
+    }
+    return _button;
+}
+
+- (void)didClick:(UIButton*)sender {
+    self.clickHandler();
+}
+
+- (void)prepareForReuse {
+    [super prepareForReuse];
+}
+
+@end

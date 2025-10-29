@@ -180,6 +180,7 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
     
     if (self.conversationViewHeight != SCREEN_HEIGHT) {
         RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+        albumListVC.isHalfScreen = YES;
         albumListVC.delegate = self;
         RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
         CGRect rect = CGRectMake(0, SCREEN_HEIGHT - self.conversationViewHeight, SCREEN_WIDTH, self.conversationViewHeight);
@@ -224,6 +225,51 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
     }
 }
 
+
+// 打开相机
+- (void)openCamera {
+    if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusNotDetermined) {
+        [self requestCameraAccess:^(BOOL granted) {
+            if (granted) {
+                [self startCamera];
+            } else {
+                [self checkAndAlertCameraAccessRight];
+            }
+        }];
+    } else {
+        if ([self checkAndAlertCameraAccessRight]) {
+            [self startCamera];
+        }
+    }
+}
+
+
+
+- (void)getCameraVC:(void(^)(UIImagePickerController * _Nullable picker))callback {
+    
+    UIImagePickerController *picker = [[UIImagePickerController alloc] init];
+    picker.delegate = self;
+#if TARGET_IPHONE_SIMULATOR
+    picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
+#else
+    picker.sourceType = UIImagePickerControllerSourceTypeCamera;
+#endif
+    
+    if ([AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo] == AVAuthorizationStatusNotDetermined) {
+        [self requestCameraAccess:^(BOOL granted) {
+            if (granted) {
+                callback(picker);
+            } else {
+                [self checkAndAlertCameraAccessRight];
+            }
+        }];
+    } else {
+        if ([self checkAndAlertCameraAccessRight]) {
+            callback(picker);
+        }
+    }
+}
+
 - (void)requestCameraAccess:(void (^)(BOOL granted))handler {
     [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo
                              completionHandler:^(BOOL granted) {
@@ -263,6 +309,7 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
         [self.delegate presentViewController:picker functionTag:PLUGIN_BOARD_ITEM_CAMERA_TAG];
     }
 }
+
 
 //打开地理位置拾取器
 - (void)openLocationPicker {
@@ -463,63 +510,76 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 
 
 - (void)inputContainerViewAlbumButtonClicked:(RCInputContainerView *)inputContainerView {
-//    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
-//        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_ALBUM_TAG];
-//    }
+
     RCKitConfigCenter.message.isMediaSelectorContainVideo = NO;
-//    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-//    albumListVC.delegate = self;
-//    albumListVC.type = RCAlbumTypePhotos;
-//    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-//    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+//    __weak typeof(self) weakSelf = self;
 //    
-    
-    
-    if (self.conversationViewHeight != SCREEN_HEIGHT) {
-        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-        albumListVC.delegate = self;
-        albumListVC.type = RCAlbumTypePhotos;
+//    if (self.conversationViewHeight != SCREEN_HEIGHT) {
+//        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+//        albumListVC.delegate = self;
+//        albumListVC.type = RCAlbumTypePhotos;
+//        albumListVC.isHalfScreen = YES;
+//        [self.delegate presentViewController:albumListVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+//        __weak RCAlumListTableViewController *host = albumListVC;
+//        albumListVC.openCameraHandler = ^{
+//            [weakSelf getCameraVC:^(UIImagePickerController * _Nullable vc) {
+//                if(vc != nil) {
+//                    vc.modalPresentationStyle = UIModalPresentationCustom;
+//                    vc.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+//                    [host presentModalViewController:vc animated:YES];
+//                    vc.finishPickingHandler = ^(UIImage *image, NSDictionary *editingInfo) {
+//                        [host dismissViewControllerAnimated:YES completion:^{
+//                            
+//                        }];
+//                    };
+//                }
+//            }];
+//        };
+//    }else{
+//        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+//        albumListVC.delegate = self;
+//        albumListVC.type = RCAlbumTypePhotos;
+//        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+//        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+//        __weak RCBaseNavigationController *host = rootVC;
+//        albumListVC.openCameraHandler = ^{
+//            [weakSelf getCameraVC:^(UIImagePickerController * _Nullable vc) {
+//                if(vc != nil) {
+//                    vc.modalPresentationStyle = UIModalPresentationCustom;
+//                    vc.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+//                    [host presentModalViewController:vc animated:YES];
+//                    vc.finishPickingHandler = ^(UIImage *image, NSDictionary *editingInfo) {
+//                        [host dismissViewControllerAnimated:YES completion:^{
+//                            
+//                        }];
+//                    };
+//                }
+//            }];
+//        };
+//    }
+    [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_ALBUM_TAG];
+}
+- (void)inputContainerViewCameraButtonClicked:(RCInputContainerView *)inputContainerView {
+    RCKitConfigCenter.message.isMediaSelectorContainVideo = YES;
+//    if (self.conversationViewHeight != SCREEN_HEIGHT) {
+//        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+//        albumListVC.delegate = self;
+//        albumListVC.type = RCAlbumTypeVideos;
+//        albumListVC.isHalfScreen = YES;
 //        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
 //        CGRect rect = CGRectMake(0, SCREEN_HEIGHT - self.conversationViewHeight, SCREEN_WIDTH, self.conversationViewHeight);
 //        rootVC.view.frame = rect;
 //        rootVC.view.backgroundColor = UIColor.clearColor;
-        [self.delegate presentViewController:albumListVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
-    }else{
-        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-        albumListVC.delegate = self;
-        albumListVC.type = RCAlbumTypePhotos;
-        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
-    }
-    
-}
-- (void)inputContainerViewCameraButtonClicked:(RCInputContainerView *)inputContainerView {
-//    if ([self.delegate respondsToSelector:@selector(pluginBoardView:clickedItemWithTag:)]) {
-//        [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_CAMERA_TAG];
+//        [self.delegate presentViewController:albumListVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
+//    }else{
+//        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
+//        albumListVC.delegate = self;
+//        albumListVC.type = RCAlbumTypeVideos;
+//        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
+//        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
 //    }
-    RCKitConfigCenter.message.isMediaSelectorContainVideo = YES;
-//    RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-//    albumListVC.delegate = self;
-//    albumListVC.type = RCAlbumTypeVideos;
-//    RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-//    [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
     
-    if (self.conversationViewHeight != SCREEN_HEIGHT) {
-        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-        albumListVC.delegate = self;
-        albumListVC.type = RCAlbumTypeVideos;
-        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-        CGRect rect = CGRectMake(0, SCREEN_HEIGHT - self.conversationViewHeight, SCREEN_WIDTH, self.conversationViewHeight);
-        rootVC.view.frame = rect;
-        rootVC.view.backgroundColor = UIColor.clearColor;
-        [self.delegate presentViewController:albumListVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
-    }else{
-        RCAlumListTableViewController *albumListVC = [[RCAlumListTableViewController alloc] init];
-        albumListVC.delegate = self;
-        albumListVC.type = RCAlbumTypeVideos;
-        RCBaseNavigationController *rootVC = [[RCBaseNavigationController alloc] initWithRootViewController:albumListVC];
-        [self.delegate presentViewController:rootVC functionTag:PLUGIN_BOARD_ITEM_ALBUM_TAG];
-    }
+    [self.delegate pluginBoardView:self.pluginBoardView clickedItemWithTag:TOOLBAR_ITEM_CAMERA_TAG];
 }
 - (void)inputContainerViewGiftButtonClicked:(RCInputContainerView *)inputContainerView {
     
@@ -669,7 +729,11 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
 - (void)imagePickerController:(UIImagePickerController *)picker
         didFinishPickingImage:(UIImage *)image
                   editingInfo:(NSDictionary *)editingInfo {
-    [picker dismissViewControllerAnimated:YES completion:nil];
+    if(picker.finishPickingHandler != nil) {
+        picker.finishPickingHandler(image,editingInfo);
+    }else{
+        [picker dismissViewControllerAnimated:YES completion:nil];
+    }
     if ([self.delegate respondsToSelector:@selector(imageDidCapture:)]) {
         [self.delegate imageDidCapture:image];
     }

@@ -23,6 +23,7 @@
 #define SIZE CGSizeMake(WIDTH, WIDTH)
 
 static NSString *const reuseIdentifier = @"Cell";
+static NSString *const cameraCellReuseIdentifier = @"RCPhotoPicker.CameraCollectCell";
 
 @interface RCPhotosPickerController () <UICollectionViewDelegateFlowLayout, PHPhotoLibraryChangeObserver,RCPhotoPickerCollectCellDelegate>
 @property (nonatomic, strong) NSMutableArray<RCAssetModel *> *selectedAssets;
@@ -38,6 +39,7 @@ static NSString *const reuseIdentifier = @"Cell";
 @property (nonatomic, assign) CGSize thumbnailSize;
 
 @property (nonatomic, strong) RCMBProgressHUD *progressHUD;
+@property (nonatomic, strong) UIImagePickerController *imagePickerVc;
 
 @end
 
@@ -47,10 +49,16 @@ static NSString *const reuseIdentifier = @"Cell";
     self = [super initWithCollectionViewLayout:layout];
     if (self) {
         self.assetArray = [NSMutableArray new];
+        RCAssetModel *camera = [[RCAssetModel alloc] init];
+        camera.cellReuseIdentifier = cameraCellReuseIdentifier;
+        [self.assetArray addObject:camera];
         self.selectedAssets = [NSMutableArray new];
 //        self.collectionView.backgroundColor = RCDYCOLOR(0xffffff, 0x000000);
         self.collectionView.backgroundColor = HEXCOLOR(0x1D1618);
         [[PHPhotoLibrary sharedPhotoLibrary] registerChangeObserver:self];
+        self.allowTakePicture = YES;
+        self.allowTakeVideo = NO;
+        self.videoMaximumDuration = 60*2;
     }
     return self;
 }
@@ -63,7 +71,6 @@ static NSString *const reuseIdentifier = @"Cell";
     flowLayout.sectionInset = UIEdgeInsetsMake(0, 16, 0, 16);
     CGFloat itemWidth = (SCREEN_WIDTH - flowLayout.sectionInset.left - flowLayout.sectionInset.right - flowLayout.minimumInteritemSpacing*3)/4.0;
     flowLayout.itemSize = CGSizeMake(itemWidth, itemWidth);
-    
     flowLayout.footerReferenceSize = CGSizeMake(SCREEN_WIDTH, 49);
     RCPhotosPickerController *pickerViewController =
     [[RCPhotosPickerController alloc] initWithCollectionViewLayout:flowLayout];
@@ -90,8 +97,11 @@ static NSString *const reuseIdentifier = @"Cell";
 - (void)updateDataSource:(NSArray<RCAssetModel *> *)photos {
     self.assetArray = [NSMutableArray arrayWithArray:photos];
     self.isLoad = YES;
+    int cameraIdx = -1;
     for (int i = 0; i < photos.count; i++) {
-        
+        if ([photos[i].cellReuseIdentifier isEqualToString:cameraCellReuseIdentifier]) {
+            cameraIdx = i;
+        }
         for (int j = 0; j < self.selectedAssets.count; j++) {
             if ([self.selectedAssets[j].asset isEqual:photos[i].asset]) {
                 self.assetArray[i].isSelect = YES;
@@ -99,8 +109,20 @@ static NSString *const reuseIdentifier = @"Cell";
             }
         }
     }
+    if(cameraIdx == -1) {
+        RCAssetModel *camera = [[RCAssetModel alloc] init];
+        camera.cellReuseIdentifier = cameraCellReuseIdentifier;
+        [self.assetArray insertObject:camera atIndex:0];
+    }else{
+        if (cameraIdx != 0) {
+            id obj = self.assetArray[cameraIdx];
+            [self.assetArray removeObjectAtIndex:cameraIdx];
+            [self.assetArray insertObject:obj atIndex:0];
+        }
+    }
     self.collectionView.alpha = self.disableFirstAppear?1:0;
     [self.collectionView reloadData];
+//    [self.collectionView setContentOffset:CGPointMake(0, 0)];
 }
 
 - (void)viewDidLoad {
@@ -114,6 +136,7 @@ static NSString *const reuseIdentifier = @"Cell";
         self.extendedLayoutIncludesOpaqueBars = YES;
     }
     [self.collectionView registerClass:[RCPhotoPickerCollectCell class] forCellWithReuseIdentifier:reuseIdentifier];
+    [self.collectionView registerClass:[RCPhotoPickerCollectCameraCell class] forCellWithReuseIdentifier:cameraCellReuseIdentifier];
     
     [self setNaviItem];
     [self createTopView];
@@ -140,7 +163,8 @@ static NSString *const reuseIdentifier = @"Cell";
             CGSize size = self.collectionView.frame.size;
             CGSize contentSize = self.collectionView.contentSize;
             CGRect frame = CGRectMake(0, MAX(contentSize.height - size.height, 0), size.width, size.height);
-            [self.collectionView scrollRectToVisible:frame animated:NO];
+//            [self.collectionView scrollRectToVisible:frame animated:NO];
+            
             [UIView animateWithDuration:0.1 animations:^{
                 self.collectionView.alpha = 1;
             }];
@@ -176,7 +200,7 @@ static NSString *const reuseIdentifier = @"Cell";
         navigationBarAppearance.backgroundColor = HEXCOLOR(0x1D1618);
         navigationBarAppearance.backgroundEffect = nil;
         
-        navigationBarAppearance.shadowImage = [UIImage new];
+        navigationBarAppearance.shadowImage = [UIImage rc_imageWithColor:UIColor.clearColor];
         
         self.navigationController.navigationBar.standardAppearance = navigationBarAppearance;
         self.navigationController.navigationBar.scrollEdgeAppearance = navigationBarAppearance;
@@ -206,16 +230,24 @@ static NSString *const reuseIdentifier = @"Cell";
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView
                   cellForItemAtIndexPath:(NSIndexPath *)indexPath {
-    RCPhotoPickerCollectCell *cell =
-    [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
     
     RCAssetModel *model = self.assetArray[indexPath.row];
     model.index = indexPath.row;
-    
-    [cell configPickerCellWithItem:self.assetArray[indexPath.row] delegate:self];
+    UICollectionViewCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:model.cellReuseIdentifier forIndexPath:indexPath];
     cell.clipsToBounds = YES;
     cell.layer.cornerRadius = 4;
-    cell.backgroundColor = HEXCOLOR(0x1D1618);
+    if([cell isKindOfClass:RCPhotoPickerCollectCameraCell.class]) {
+        cell.backgroundColor = HEXCOLOR(0xF5F5F5);
+        __weak typeof(self) weakSelf = self;
+        ((RCPhotoPickerCollectCameraCell*) cell).clickHandler = ^{
+            weakSelf.openCameraHandler();
+        };
+    }
+    if([cell isKindOfClass:RCPhotoPickerCollectCell.class]) {
+        cell.backgroundColor = HEXCOLOR(0x1D1618);
+        [(RCPhotoPickerCollectCell*)cell configPickerCellWithItem:model delegate:self];
+    }
+
     return cell;
 }
 
@@ -352,6 +384,25 @@ static NSString *const reuseIdentifier = @"Cell";
         self.selectedAssets = selectArr;
         [self setButtonEnable];
         self.assetArray = assetPhotos.mutableCopy;
+        
+        int cameraIdx = -1;
+        for (int i = 0; i < self.assetArray.count; i++) {
+            if ([self.assetArray[i].cellReuseIdentifier isEqualToString:cameraCellReuseIdentifier]) {
+                cameraIdx = i;
+            }
+        }
+        if(cameraIdx == -1) {
+            RCAssetModel *camera = [[RCAssetModel alloc] init];
+            camera.cellReuseIdentifier = cameraCellReuseIdentifier;
+            [self.assetArray insertObject:camera atIndex:0];
+        }else{
+            if (cameraIdx != 0) {
+                id obj = self.assetArray[cameraIdx];
+                [self.assetArray removeObjectAtIndex:cameraIdx];
+                [self.assetArray insertObject:obj atIndex:0];
+            }
+        }
+        
         self.isFull = isFull;
         [self.collectionView reloadData];
     }];
@@ -744,4 +795,87 @@ static NSString *const reuseIdentifier = @"Cell";
     }
     return _cachingImageManager;
 }
+
+/*
+/// 拍照按钮点击事件
+- (void)takePhoto {
+    AVAuthorizationStatus authStatus = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    if ((authStatus == AVAuthorizationStatusRestricted || authStatus ==AVAuthorizationStatusDenied)) {
+        
+        // 无权限 做一个友好的提示
+        NSString *appName = [TZCommonTools tz_getAppName];
+
+        NSString *title = [NSBundle tz_localizedStringForKey:@"Can not use camera"];
+        NSString *message = [NSString stringWithFormat:[NSBundle tz_localizedStringForKey:@"Please allow %@ to access your camera in \"Settings -> Privacy -> Camera\""],appName];
+        UIAlertController *alertController = [UIAlertController alertControllerWithTitle:title message:message preferredStyle:UIAlertControllerStyleAlert];
+        UIAlertAction *cancelAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Cancel"] style:UIAlertActionStyleCancel handler:nil];
+        [alertController addAction:cancelAct];
+        UIAlertAction *settingAct = [UIAlertAction actionWithTitle:[NSBundle tz_localizedStringForKey:@"Setting"] style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:UIApplicationOpenSettingsURLString] options:@{} completionHandler:nil];
+        }];
+        [alertController addAction:settingAct];
+        [self.navigationController presentViewController:alertController animated:YES completion:nil];
+    } else if (authStatus == AVAuthorizationStatusNotDetermined) {
+        // fix issue 466, 防止用户首次拍照拒绝授权时相机页黑屏
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+            if (granted) {
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    [self pushImagePickerController];
+                });
+            }
+        }];
+    } else {
+        [self pushImagePickerController];
+    }
+}
+
+- (UIImagePickerController *)imagePickerVc {
+    if (_imagePickerVc == nil) {
+        _imagePickerVc = [[UIImagePickerController alloc] init];
+        _imagePickerVc.delegate = self;
+        // set appearance / 改变相册选择页的导航栏外观
+        _imagePickerVc.navigationBar.barTintColor = self.navigationController.navigationBar.barTintColor;
+        _imagePickerVc.navigationBar.tintColor = self.navigationController.navigationBar.tintColor;
+        UIBarButtonItem *tzBarItem, *BarItem;
+        if (@available(iOS 9, *)) {
+            tzBarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[TZImagePickerController class]]];
+            BarItem = [UIBarButtonItem appearanceWhenContainedInInstancesOfClasses:@[[UIImagePickerController class]]];
+        } else {
+            tzBarItem = [UIBarButtonItem appearanceWhenContainedIn:[TZImagePickerController class], nil];
+            BarItem = [UIBarButtonItem appearanceWhenContainedIn:[UIImagePickerController class], nil];
+        }
+        NSDictionary *titleTextAttributes = [tzBarItem titleTextAttributesForState:UIControlStateNormal];
+        [BarItem setTitleTextAttributes:titleTextAttributes forState:UIControlStateNormal];
+    }
+    return _imagePickerVc;
+}
+
+// 调用相机
+- (void)pushImagePickerController {
+    // 提前定位
+    RCPhotosPickerController *tzImagePickerVc = (RCPhotosPickerController *)self.navigationController;
+
+    
+    UIImagePickerControllerSourceType sourceType = UIImagePickerControllerSourceTypeCamera;
+    if ([UIImagePickerController isSourceTypeAvailable: sourceType]) {
+        self.imagePickerVc.sourceType = sourceType;
+        NSMutableArray *mediaTypes = [NSMutableArray array];
+        if (tzImagePickerVc.allowTakePicture) {
+            [mediaTypes addObject:(NSString *)kUTTypeImage];
+        }
+        if (tzImagePickerVc.allowTakeVideo) {
+            [mediaTypes addObject:(NSString *)kUTTypeMovie];
+            self.imagePickerVc.videoMaximumDuration = tzImagePickerVc.videoMaximumDuration;
+        }
+        self.imagePickerVc.mediaTypes= mediaTypes;
+//        if (tzImagePickerVc.uiImagePickerControllerSettingBlock) {
+//            tzImagePickerVc.uiImagePickerControllerSettingBlock(_imagePickerVc);
+//        }
+        [self presentViewController:_imagePickerVc animated:YES completion:nil];
+    } else {
+        NSLog(@"模拟器中无法打开照相机,请在真机中使用");
+    }
+}
+*/
+
 @end

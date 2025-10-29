@@ -610,5 +610,8 @@ typedef enum : NSUInteger {
 
 - (void)onCopyMessage:(id)sender;
 
+- (void)imageDidCapture:(UIImage *)image;
+- (void)imageDataDidSelect:(NSArray *)selectedImages fullImageRequired:(BOOL)full;
+
 @end
 NS_ASSUME_NONNULL_END

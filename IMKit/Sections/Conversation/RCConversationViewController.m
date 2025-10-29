@@ -1645,29 +1645,30 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 
 - (void)presentViewController:(UIViewController *)viewController functionTag:(NSInteger)functionTag {
     switch (functionTag) {
-    case PLUGIN_BOARD_ITEM_ALBUM_TAG:
-    case PLUGIN_BOARD_ITEM_CAMERA_TAG:
-    case PLUGIN_BOARD_ITEM_LOCATION_TAG:
-    case PLUGIN_BOARD_ITEM_FILE_TAG:
-    case INPUT_MENTIONED_SELECT_TAG: {
-        
-        if(self.viewHeight != SCREEN_HEIGHT) {
-            if ([viewController isKindOfClass:UINavigationController.class]) {
-                viewController.modalPresentationStyle = UIModalPresentationCustom;
-                viewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
-                [self presentViewController:viewController animated:YES completion:nil];
+        case PLUGIN_BOARD_ITEM_ALBUM_TAG:
+        case PLUGIN_BOARD_ITEM_CAMERA_TAG:
+        case PLUGIN_BOARD_ITEM_LOCATION_TAG:
+        case PLUGIN_BOARD_ITEM_FILE_TAG:
+        case INPUT_MENTIONED_SELECT_TAG: {
+            
+            if(self.viewHeight != SCREEN_HEIGHT) {
+                if ([viewController isKindOfClass:UINavigationController.class]) {
+                    viewController.modalPresentationStyle = UIModalPresentationCustom;
+                    viewController.modalTransitionStyle = UIModalTransitionStyleCoverVertical;
+                    [self presentViewController:viewController animated:YES completion:nil];
+                }else{
+                    viewController.modalPresentationStyle = UIModalPresentationFullScreen;
+                    [self.navigationController presentViewController:viewController animated:YES completion:nil];
+                }
             }else{
                 viewController.modalPresentationStyle = UIModalPresentationFullScreen;
+                
                 [self.navigationController presentViewController:viewController animated:YES completion:nil];
             }
-        }else{
-            viewController.modalPresentationStyle = UIModalPresentationFullScreen;
             
-            [self.navigationController presentViewController:viewController animated:YES completion:nil];
-        }
-        
-    } break;
-    default: { } break; }
+        } break;
+        default: { } break;
+    }
 }
 
 #pragma mark 输入工具栏各种扩展功能点击事件

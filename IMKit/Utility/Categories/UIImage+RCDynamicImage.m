@@ -115,4 +115,31 @@ static const NSString *RCImageLocalPathKey = @"RCImageLocalPathKey";
     }
 }
 
++ (UIImage *)rc_imageWithColor:(UIColor *)color size:(CGSize)size {
+    if (!color || size.width <= 0 || size.height <= 0) return nil;
+    
+    CGRect rect = CGRectMake(0, 0, size.width, size.height);
+    
+    // 开启图形上下文
+    UIGraphicsBeginImageContextWithOptions(size, NO, 0);
+    CGContextRef context = UIGraphicsGetCurrentContext();
+    
+    // 填充颜色
+    CGContextSetFillColorWithColor(context, color.CGColor);
+    CGContextFillRect(context, rect);
+    
+    // 获取 UIImage
+    UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
+    
+    // 关闭上下文
+    UIGraphicsEndImageContext();
+    
+    return image;
+}
+
++ (UIImage *)rc_imageWithColor:(UIColor *)color {
+    return [self rc_imageWithColor:color size:CGSizeMake(1, 1)];
+}
+
+
 @end

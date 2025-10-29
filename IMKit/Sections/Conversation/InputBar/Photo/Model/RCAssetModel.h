@@ -52,4 +52,8 @@
 - (void)fetchThumbnailImage;
 
 + (RCAssetModel *)modelWithAsset:(id)asset;
+
+@property (nonatomic, copy) NSString *cellReuseIdentifier;
+
 @end
+
