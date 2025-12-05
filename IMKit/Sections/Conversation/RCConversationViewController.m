@@ -1556,6 +1556,10 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
     }
 }
 
+- (void)xs_inputTextViewDidTouchSendKey:(NSString *)text {
+    
+}
+
 - (void)inputTextViewDidTouchSendKey:(UITextView *)inputTextView {
     if ([self sendReferenceMessage:inputTextView.text]) {
         return;
@@ -2451,6 +2455,10 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
     UIMenuItem *referItem =
         [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"Reference")
                                    action:@selector(onReferenceMessageCell:)];
+    
+    UIMenuItem *reportItem =
+        [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"Report")
+                                   action:@selector(onReportMessageCell:)];
     NSMutableArray *items = @[].mutableCopy;
     if (model.content.destructDuration > 0) {
         [items addObject:deleteItem];
@@ -2458,23 +2466,46 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
             [items addObject:recallItem];
         }
     } else {
-        if ([model.content isMemberOfClass:[RCTextMessage class]] ||
-            [model.content isMemberOfClass:[RCReferenceMessage class]]) {
-            [items addObject:copyItem];
+        
+        if(model.messageDirection == MessageDirection_SEND) {
+            if ([model.content isMemberOfClass:[RCTextMessage class]] ||
+                [model.content isMemberOfClass:[RCReferenceMessage class]]) {
+                [items addObject:copyItem];
+            }
+            // 语音转文本
+            UIMenuItem *sttItem = [self stt_menuItemForModel:model];
+            if (sttItem) {
+                [items addObject:sttItem];
+            }
+            [items addObject:deleteItem];
+            if ([self.util canRecallMessageOfModel:model]) {
+                [items addObject:recallItem];
+            }
+            
+//            if ([self.util canReferenceMessage:model]) {
+//                [items addObject:referItem];
+//            }
+        }else{
+            if ([model.content isMemberOfClass:[RCTextMessage class]] ||
+                [model.content isMemberOfClass:[RCReferenceMessage class]]) {
+                [items addObject:copyItem];
+                [items addObject:reportItem];
+            }
+            
+            // 语音转文本
+            UIMenuItem *sttItem = [self stt_menuItemForModel:model];
+            if (sttItem) {
+                [items addObject:sttItem];
+            }
+            [items addObject:deleteItem];
+            if ([self.util canRecallMessageOfModel:model]) {
+                [items addObject:recallItem];
+            }
+            
+            if ([self.util canReferenceMessage:model]) {
+                [items addObject:referItem];
+            }
         }
-        // 语音转文本
-        UIMenuItem *sttItem = [self stt_menuItemForModel:model];
-        if (sttItem) {
-            [items addObject:sttItem];
-        }
-        [items addObject:deleteItem];
-        if ([self.util canRecallMessageOfModel:model]) {
-            [items addObject:recallItem];
-        }
-        /*
-        if ([self.util canReferenceMessage:model]) {
-            [items addObject:referItem];
-        }*/
     }
     
     BOOL translateEnable = [self isTranslationEnable] && !model.isTranslated && [model.content isKindOfClass:[RCTextMessage class]] && !model.translating;
@@ -3237,6 +3268,17 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 - (void)onReferenceMessageCell:(id)sender {
     [self onReferenceMessageCellAndEditing:YES];
 }
+
+- (void)doReportMessage:(RCMessageModel *)message {
+    
+}
+
+//:TODO
+- (void)onReportMessageCell:(id)sender {
+//    [self onReferenceMessageCellAndEditing:YES];
+    [self doReportMessage:self.currentSelectedModel];
+}
+
 
 - (void)onReferenceMessageCellAndEditing:(BOOL)editing {
     [self removeReferencingView];

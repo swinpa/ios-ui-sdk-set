@@ -613,5 +613,32 @@ typedef enum : NSUInteger {
 - (void)imageDidCapture:(UIImage *)image;
 - (void)imageDataDidSelect:(NSArray *)selectedImages fullImageRequired:(BOOL)full;
 
+
+- (void)xs_inputTextViewDidTouchSendKey:(NSString *)text;
+
+- (void)doReportMessage:(RCMessageModel *)message;
+
+
+
+
+
+- (void)rcinit;
+- (void)initializedSubViews;
+- (void)registerAllInternalClass;
+- (void)registerCustomCellsAndMessages;
+- (void)registerNotification;
+- (void)updateDraftBeforeViewAppear;
+- (void)setNavigationItem;
+- (void)registerSectionHeaderView;
+- (void)disableSystemDefaultEmoji;
+- (void)sendGroupReadReceiptResponseForCache;
+
+- (void)createChatSessionInputBarControl;
+- (void)createConversationMessageCollectionView;
+- (void)layoutSubview:(CGSize)size;
+- (void)setupUnReadMessageView;
+- (void)didReceiveMessageNotification:(NSNotification *)notification;
+- (void)didSendingMessageNotification:(NSNotification *)notification;
+
 @end
 NS_ASSUME_NONNULL_END

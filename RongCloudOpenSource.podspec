@@ -31,6 +31,7 @@ Pod::Spec.new do |s|
     kit.private_header_files = 'IMKit/Utility/Extension/*.h'
     kit.frameworks = "AssetsLibrary", "MapKit", "ImageIO", "CoreLocation", "SystemConfiguration", "QuartzCore", "OpenGLES", "CoreVideo", "CoreTelephony", "CoreMedia", "CoreAudio", "CFNetwork", "AudioToolbox", "AVFoundation", "UIKit", "CoreGraphics", "SafariServices"
     kit.dependency 'RongCloudIM/IMLib','5.24.2'
+    kit.dependency 'SDWebImage'
   end
 
   s.subspec 'RongSticker' do |rs|

@@ -11,6 +11,7 @@
 #import "RCConversationStatusView.h"
 #import "RCMessageBubbleTipView.h"
 #import "RCThemeDefine.h"
+#import "RCConversationHeaderView.h"
 
 #import <UIKit/UIKit.h>
 
@@ -118,6 +119,14 @@
  */
 @property (nonatomic, strong) RCConversationStatusView *statusView;
 
+//当前 cell 正在展示的用户信息，消息携带用户信息且频发发送，会导致 cell 频发刷新
+//cell 复用的时候，检测如果是即将刷新的是同一个用户信息，那么就跳过刷新
+//IMSDK-2705
+
+@property (nonatomic, strong) RCUserInfo *currentDisplayedUserInfo;
+
+@property (nonatomic, strong) RCConversationHeaderView *headerView;
+
 /*!
  设置Cell中显示的头像形状
 
@@ -133,6 +142,12 @@
  - Parameter model: 会话Cell的数据模型
  */
 - (void)setDataModel:(RCConversationModel *)model;
+
+- (void)onUserInfoUpdate:(NSNotification *)notification;
+- (BOOL)isSameUserInfo:(RCUserInfo *)currentUserInfo other:(RCUserInfo *)other;
+
+- (void)p_displayNormal:(RCConversationModel *)model;
+- (void)p_displaySimaple:(RCConversationModel *)model;
 
 @end
 

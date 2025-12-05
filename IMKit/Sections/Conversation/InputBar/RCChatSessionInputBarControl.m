@@ -612,6 +612,10 @@ NSString *const RCKitKeyboardWillShowNotification = @"RCKitKeyboardWillShowNotif
         if ([self.delegate respondsToSelector:@selector(inputTextViewDidTouchSendKey:)]) {
             NSString *formatString =
                 [inputTextView.text stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]];
+            
+            if ([self.delegate respondsToSelector:@selector(xs_inputTextViewDidTouchSendKey:)]) {
+                [self.delegate xs_inputTextViewDidTouchSendKey:formatString];
+            }
             if (formatString.length > 0) {
                 [self.delegate inputTextViewDidTouchSendKey:inputTextView];
                 [self.mentionedRangeInfoList removeAllObjects];

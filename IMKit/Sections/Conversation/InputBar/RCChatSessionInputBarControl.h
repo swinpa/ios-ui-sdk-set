@@ -412,6 +412,14 @@ static NSInteger g_TOOLBAR_ITEM_CAMERA_TAG = TOOLBAR_ITEM_CAMERA_TAG;
 - (void)inputTextViewDidTouchSendKey:(UITextView *)inputTextView;
 
 /*!
+ 点击键盘Return按钮的回调
+
+ - Parameter inputTextView: 文本输入框
+ */
+- (void)xs_inputTextViewDidTouchSendKey:(NSString *)text;
+
+
+/*!
  点击客服机器人切换按钮的回调
  */
 - (void)robotSwitchButtonDidTouch;

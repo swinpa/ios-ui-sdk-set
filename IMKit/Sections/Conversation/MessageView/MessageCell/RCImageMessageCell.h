@@ -18,4 +18,6 @@
 /// 显示发送进度的View
 @property (nonatomic, strong) RCImageMessageProgressView *progressView;
 
++ (UIImage *)getDisplayImage:(RCMessageModel *)model;
+
 @end
