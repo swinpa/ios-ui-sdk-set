@@ -22,8 +22,7 @@
     [self.labContent sizeToFit];
     [self addSubview:self.imgView];
     [self addSubview:self.labContent];
-    self.backgroundColor = [RCKitUtility generateDynamicColor:HEXCOLOR(0xffffff)
-                                                    darkColor:HEXCOLOR(0x1c1c1e)];
+    self.backgroundColor = RCDynamicColor(@"common_background_color", @"0xffffff", @"0x1c1c1e");
     self.bounds = CGRectMake(0, 0, 24+CGRectGetWidth(self.imgView.bounds) +8+
                              CGRectGetWidth(self.labContent.bounds), 40);
 }
@@ -43,7 +42,7 @@
 - (UILabel *)labContent {
     if (!_labContent) {
         UILabel *lab  = [UILabel new];
-        lab.textColor = RCDYCOLOR(0xA0A5Ab, 0x878787);
+        lab.textColor = RCDynamicColor(@"text_secondary_color", @"0xA0A5Ab", @"0x878787");
         lab.font = [UIFont systemFontOfSize:16];
         lab.text = RCLocalizedString(@"STTOperationFailed");
         _labContent = lab;
@@ -54,7 +53,7 @@
 - (UIImageView *)imgView {
     if (!_imgView) {
         UIImageView *view = [UIImageView new];
-        view.image = RCResourceImage(@"sendMsg_failed_tip");
+        view.image = RCDynamicImage(@"conversation_msg_cell_msg_fail_img",@"sendMsg_failed_tip");
         _imgView = view;
     }
     return _imgView;;

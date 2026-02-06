@@ -93,22 +93,13 @@ static NSString *const cellReuseIdentifier = @"cell";
         doneTitleLabel.textAlignment = NSTextAlignmentRight;
     }
     doneTitleLabel.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
-    
-//    doneTitleLabel.textColor = [RCKitUtility
-//                                generateDynamicColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")
-//                                darkColor:RCResourceColor(@"photoPicker_cancel", @"0x0099ff")];
-//    
     doneTitleLabel.textColor = [UIColor whiteColor];
     [rightBarView addSubview:doneTitleLabel];
     UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissCurrentModelViewController)];
     [rightBarView addGestureRecognizer:tap];
     UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithCustomView:rightBarView];
     [self.navigationItem setRightBarButtonItem:rightItem];
-    
-    
-//    
-    
-    
+
 }
 
 - (void)configNavigationBar {

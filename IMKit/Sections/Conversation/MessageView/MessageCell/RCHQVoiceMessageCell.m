@@ -286,8 +286,8 @@ static RCMessageDirection hq_previousMessageDirection;
     self.messageContentView.contentSize = CGSizeMake(audioBubbleWidth, voiceHeight);
     if ([RCKitUtility isRTL]) {
         if (self.model.messageDirection == MessageDirection_SEND) {
-            self.playVoiceView.image = RCResourceImage(@"from_voice_3");
-            [self.voiceDurationLabel setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
+            self.playVoiceView.image = RCDynamicImage(@"conversation_msg_cell_receive_voice_3_img",@"from_voice_3");
+            [self.voiceDurationLabel setTextColor:RCDynamicColor(@"text_primary_color", @"0x111f2c", @"0xffffffcc")];
             self.voiceDurationLabel.textAlignment = NSTextAlignmentLeft;
             self.playVoiceView.frame = CGRectMake(12, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
             self.voiceDurationLabel.frame = CGRectMake(CGRectGetMaxX(self.playVoiceView.frame) + 8, 0, audioBubbleWidth - (CGRectGetMaxX(self.playVoiceView.frame) + 8), voiceHeight);
@@ -295,8 +295,8 @@ static RCMessageDirection hq_previousMessageDirection;
             self.voiceDurationLabel.textAlignment = NSTextAlignmentRight;
             self.playVoiceView.frame = CGRectMake(self.messageContentView.frame.size.width-12-Play_Voice_View_Width, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
             self.voiceDurationLabel.frame = CGRectMake(12, 0, CGRectGetMinX(self.playVoiceView.frame) - 20, voiceHeight);
-            [self.voiceDurationLabel setTextColor:RCDYCOLOR(0x111f2c, 0x040A0F)];
-            self.playVoiceView.image = RCResourceImage(@"to_voice_3");
+            [self.voiceDurationLabel setTextColor:RCDynamicColor(@"text_primary_color", @"0x111f2c", @"0x040A0F")];
+            self.playVoiceView.image = RCDynamicImage(@"conversation_msg_cell_send_voice_3_img",@"to_voice_3");
         }
     } else {
         
@@ -304,11 +304,11 @@ static RCMessageDirection hq_previousMessageDirection;
             self.voiceDurationLabel.textAlignment = NSTextAlignmentRight;
             self.playVoiceView.frame = CGRectMake(self.messageContentView.frame.size.width-12-Play_Voice_View_Width, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
             self.voiceDurationLabel.frame = CGRectMake(12, 0, CGRectGetMinX(self.playVoiceView.frame) - 20, voiceHeight);
-            [self.voiceDurationLabel setTextColor:RCDYCOLOR(0x111f2c, 0x040A0F)];
-            self.playVoiceView.image = RCResourceImage(@"to_voice_3");
+            [self.voiceDurationLabel setTextColor:RCDynamicColor(@"text_primary_color", @"0x111f2c", @"0x040A0F")];
+            self.playVoiceView.image = RCDynamicImage(@"conversation_msg_cell_send_voice_3_img",@"to_voice_3");
         }else{
-            self.playVoiceView.image = RCResourceImage(@"from_voice_3");
-            [self.voiceDurationLabel setTextColor:[RCKitUtility generateDynamicColor:HEXCOLOR(0x111f2c) darkColor:RCMASKCOLOR(0xffffff, 0.8)]];
+            self.playVoiceView.image = RCDynamicImage(@"conversation_msg_cell_receive_voice_3_img",@"from_voice_3");
+            [self.voiceDurationLabel setTextColor:RCDynamicColor(@"text_primary_color", @"0x111f2c", @"0xffffffcc")];
             self.voiceDurationLabel.textAlignment = NSTextAlignmentLeft;
             self.playVoiceView.frame = CGRectMake(12, (voiceHeight - Play_Voice_View_Width)/2, Play_Voice_View_Width, Play_Voice_View_Width);
             self.voiceDurationLabel.frame = CGRectMake(CGRectGetMaxX(self.playVoiceView.frame) + 8, 0, audioBubbleWidth - (CGRectGetMaxX(self.playVoiceView.frame) + 8), voiceHeight);
@@ -364,7 +364,7 @@ static RCMessageDirection hq_previousMessageDirection;
                 [self.voiceUnreadTagView setHidden:YES];
             }
             [self.baseContentView addSubview:self.voiceUnreadTagView];
-            self.voiceUnreadTagView.image = RCResourceImage(@"voice_unread");
+            self.voiceUnreadTagView.image = RCDynamicImage(@"conversation_msg_cell_voice_unread_img",@"voice_unread");
         }
     }
 }
@@ -601,13 +601,17 @@ static RCMessageDirection hq_previousMessageDirection;
 
     self.animationIndex++;
     NSString *playingIndicatorIndex;
+    NSString *playingIndicatorIndexKey;
     if (MessageDirection_SEND == self.model.messageDirection) {
         playingIndicatorIndex = [NSString stringWithFormat:@"to_voice_%d", (self.animationIndex % 4)];
+        playingIndicatorIndexKey = [NSString stringWithFormat:@"conversation_msg_cell_send_voice_%d_img", (self.animationIndex % 4)];
     } else {
         playingIndicatorIndex = [NSString stringWithFormat:@"from_voice_%d", (self.animationIndex % 4)];
+        playingIndicatorIndexKey = [NSString stringWithFormat:@"conversation_msg_cell_receive_voice_%d_img", (self.animationIndex % 4)];
+
     }
     DebugLog(@"playingIndicatorIndex > %@", playingIndicatorIndex);
-    UIImage *image = RCResourceImage(playingIndicatorIndex);;
+    UIImage *image = RCDynamicImage(playingIndicatorIndexKey, playingIndicatorIndex);
     if ([RCKitUtility isRTL]) {
         image = [image imageFlippedForRightToLeftLayoutDirection];
     }
@@ -622,9 +626,9 @@ static RCMessageDirection hq_previousMessageDirection;
     }
     UIImage *image;
     if (MessageDirection_SEND == self.model.messageDirection) {
-        image = RCResourceImage(@"to_voice_3");
+        image = RCDynamicImage(@"conversation_msg_cell_send_voice_3_img",@"to_voice_3");
     } else {
-        image = RCResourceImage(@"from_voice_3");
+        image = RCDynamicImage(@"conversation_msg_cell_receive_voice_3_img",@"from_voice_3");
     }
     if ([RCKitUtility isRTL]) {
         self.playVoiceView.image = [image imageFlippedForRightToLeftLayoutDirection];
@@ -643,9 +647,9 @@ static RCMessageDirection hq_previousMessageDirection;
          */
         if (hq_previousPlayVoiceImageView) {
             if (MessageDirection_SEND == self.model.messageDirection) {
-                hq_previousPlayVoiceImageView.image = RCResourceImage(@"to_voice_3");
+                hq_previousPlayVoiceImageView.image = RCDynamicImage(@"conversation_msg_cell_send_voice_3_img",@"to_voice_3");
             } else {
-                hq_previousPlayVoiceImageView.image = RCResourceImage(@"from_voice_3");
+                hq_previousPlayVoiceImageView.image = RCDynamicImage(@"conversation_msg_cell_receive_voice_3_img",@"from_voice_3");
             }
             hq_previousPlayVoiceImageView = nil;
             hq_previousMessageDirection = 0;

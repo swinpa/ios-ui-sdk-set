@@ -17,12 +17,19 @@
 #import <RongPublicService/RongPublicService.h>
 #import <RongDiscussion/RongDiscussion.h>
 #import "RCSemanticContext.h"
+#import "RCOnlineStatusView.h"
+#import "RCUserOnlineStatusUtil.h"
+
 @interface RCConversationCell ()
 
 
-
-
 @property (nonatomic, strong) NSLayoutConstraint *unreadnumWidthConstraint;
+
+//当前 cell 正在展示的用户信息，消息携带用户信息且频发发送，会导致 cell 频发刷新
+//cell 复用的时候，检测如果是即将刷新的是同一个用户信息，那么就跳过刷新
+//IMSDK-2705
+// 包含在线状态图标和标题的 StackView（用于自动管理显示/隐藏时的布局）
+@property (nonatomic, strong) UIStackView *titleStackView;
 
 @end
 
@@ -42,11 +49,10 @@
     self.selectionStyle = UITableViewCellSelectionStyleNone;
     self.selectedBackgroundView = [[UIView alloc] initWithFrame:self.frame];
     self.selectedBackgroundView.backgroundColor =
-        [RCKitUtility generateDynamicColor:HEXCOLOR(0xf5f5f5)
-                                 darkColor:[HEXCOLOR(0x1c1c1e) colorWithAlphaComponent:0.8]];
+    RCDynamicColor(@"highlight_color", @"0xf5f5f5", @"0x1c1c1eCC");
 
     [self.contentView addSubview:self.headerView];
-    [self.contentView addSubview:self.conversationTitle];
+    [self.contentView addSubview:self.titleStackView]; // 使用 StackView 包含在线状态和标题
     [self.contentView addSubview:self.conversationTagView];
     [self.contentView addSubview:self.messageCreatedTimeLabel];
     [self.contentView addSubview:self.detailContentView];
@@ -77,6 +83,10 @@
                                              selector:@selector(updatePublicServiceIfNeed:)
                                                  name:RCKitDispatchPublicServiceInfoNotification
                                                object:nil];
+    [[NSNotificationCenter defaultCenter] addObserver:self
+                                             selector:@selector(onUserOnlineStatusChanged:)
+                                                 name:RCKitConversationCellOnlineStatusUpdateNotification
+                                               object:nil];
 }
 
 - (void)dealloc {
@@ -84,13 +94,25 @@
 }
 
 - (void)addSubViewConstraints {
+    [self.titleStackView setContentCompressionResistancePriority:UILayoutPriorityRequired
+                                                            forAxis:UILayoutConstraintAxisHorizontal];
+    [self.titleStackView setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+    
     [self.conversationTitle setContentCompressionResistancePriority:UILayoutPriorityDefaultLow
                                                             forAxis:UILayoutConstraintAxisHorizontal];
     [self.conversationTitle setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+    
+    [self.messageCreatedTimeLabel setContentCompressionResistancePriority:UILayoutPriorityRequired
+                                                                  forAxis:UILayoutConstraintAxisHorizontal];
+    
+    
     // fix: rce "部门"标签视图与时间视图重叠
     NSDictionary *cellSubViews =
         NSDictionaryOfVariableBindings(_headerView, _conversationTitle, _messageCreatedTimeLabel, _detailContentView,
                                        _statusView, _conversationTagView);
+    
+    // 水平布局：头像 - StackView(在线状态+标题) - 标签 - 时间
+    // StackView 会自动管理在线状态图标的显示/隐藏，隐藏时不占用空间
     [self.contentView
         addConstraints:[NSLayoutConstraint
                            constraintsWithVisualFormat:@"H:|-16-[_headerView(width)]-12-"
@@ -232,7 +254,6 @@
     } else if (model.operationTime > 0) {
         self.messageCreatedTimeLabel.text = [RCKitUtility convertConversationTime:model.operationTime / 1000];
     }
-    [self.statusView updateNotificationStatus:model];
     [self.statusView updateReadStatus:model];
     self.statusView.hidden = YES;
     
@@ -262,29 +283,57 @@
             self.unreadnumWidthConstraint.constant = finalWidth;
         }
     }
+    [self.statusView updateNotificationStatus:model];
     
+    // 更新在线状态显示
+    [self updateOnlineStatusDisplay];
 }
 
 - (void)p_displaySimaple:(RCConversationModel *)model {
     BOOL isEncrypted = model.conversationType == ConversationType_Encrypted;
     NSString *targetId = isEncrypted ? [[model.targetId componentsSeparatedByString:@";;;"] lastObject] : model.targetId;
-   
-    RCUserInfo *userInfo = [[RCUserInfoCacheManager sharedManager] getUserInfo:targetId];
-    if (userInfo) {
-        if (!isEncrypted) {
-            self.headerView.headerImageView.imageURL = [NSURL URLWithString:userInfo.portraitUri];
+    
+    NSString *title;
+    NSString *imageUrl;
+    
+    if (model.dataMgmtInfo && model.dataMgmtInfo.name.length > 0) {
+        // 有托管信息
+        title = model.dataMgmtInfo.name;
+        imageUrl = model.dataMgmtInfo.portraitUri;
+    } else {
+        RCUserInfo *userInfo = [[RCUserInfoCacheManager sharedManager] getUserInfo:targetId];
+        if (userInfo) {
+            title = [RCKitUtility getDisplayName:userInfo];
+            imageUrl = userInfo.portraitUri;
         }
     }
-    [self updateConversationTitle:[RCKitUtility getDisplayName:userInfo]];
+    if (!isEncrypted && imageUrl) {
+        self.headerView.headerImageView.imageURL = [NSURL URLWithString:imageUrl];
+    }
+    [self updateConversationTitle:title];
     [self.detailContentView updateContent:model prefixName:nil];
 }
 
 - (void)p_displayGroup:(RCConversationModel *)model {
-    RCGroup *groupInfo = [[RCUserInfoCacheManager sharedManager] getGroupInfo:model.targetId];
-    if (groupInfo) {
-        self.headerView.headerImageView.imageURL = [NSURL URLWithString:groupInfo.portraitUri];
+    NSString *title;
+    NSString *imageUrl;
+    
+    if (model.dataMgmtInfo && model.dataMgmtInfo.name.length > 0) {
+        // 有托管信息
+        title = model.dataMgmtInfo.name;
+        imageUrl = model.dataMgmtInfo.portraitUri;
+    } else {
+        RCGroup *groupInfo = [[RCUserInfoCacheManager sharedManager] getGroupInfo:model.targetId];
+        if (groupInfo) {
+            title = groupInfo.groupName;
+            imageUrl = groupInfo.portraitUri;
+        }
     }
-    [self updateConversationTitle:groupInfo.groupName];
+    
+    if (imageUrl) {
+        self.headerView.headerImageView.imageURL = [NSURL URLWithString:imageUrl];
+    }
+    [self updateConversationTitle:title];
 
     if (self.hideSenderName) {
         [self.detailContentView updateContent:model prefixName:nil];
@@ -429,12 +478,30 @@
     for (UIView *view in [self.conversationTagView subviews]) {
         [view removeFromSuperview];
     }
+    
+    // 重置在线状态圆点（默认隐藏，StackView 会自动不给它分配空间）
+    self.onlineStatusView.hidden = YES;
+    self.onlineStatusView.backgroundColor = nil;
 }
 
 - (void)updateConversationTitle:(NSString *)text {
     text = (text.length > 0) ? text : self.model.targetId;
     self.model.conversationTitle = text;
     self.conversationTitle.text = self.model.conversationTitle;
+}
+
+- (void)updateOnlineStatus:(BOOL)isOnline {
+    if (!self.model.displayOnlineStatus) {
+        self.onlineStatusView.hidden = YES;
+        return;
+    }
+    // 显示在线状态圆点，根据状态显示不同颜色
+    self.onlineStatusView.hidden = NO;
+    self.onlineStatusView.online = isOnline;
+}
+
+- (void)updateOnlineStatusDisplay {
+    [self updateOnlineStatus:self.model.onlineStatus.isOnline];
 }
 
 - (BOOL)hideSenderNameForDefault:(RCConversationModel *)model {
@@ -591,11 +658,14 @@
         dispatch_main_async_safe(^{
             if (updateInfo.updateType == RCConversationCell_MessageContent_Update) {
                 [self.detailContentView updateContent:self.model];
+                [self.statusView updateReadStatus:self.model];
             } else if (updateInfo.updateType == RCConversationCell_SentStatus_Update) {
                 [self.statusView updateReadStatus:self.model];
+                [self.detailContentView updateContent:self.model];
             } else if (updateInfo.updateType == RCConversationCell_UnreadCount_Update) {
                 [self.headerView updateBubbleUnreadNumber:(int)self.model.unreadMessageCount];
             }
+            [self didUpdateCell];
         });
     }
 }
@@ -608,6 +678,23 @@
         dispatch_async(dispatch_get_main_queue(), ^{
             [self updateConversationTitle:profile.name];
             self.headerView.headerImageView.imageURL = [NSURL URLWithString:profile.portraitUrl];
+        });
+    }
+}
+
+- (void)onUserOnlineStatusChanged:(NSNotification *)notification {
+    // 只在单聊类型会话中处理在线状态变化
+    if (self.model.conversationType != ConversationType_PRIVATE) {
+        return;
+    }
+    
+    // 获取变化的用户ID列表
+    NSArray<NSString *> *changedUserIds = notification.userInfo[RCKitUserOnlineStatusChangedUserIdsKey];
+    
+    // 检查当前会话的用户是否在变化列表中
+    if ([changedUserIds containsObject:self.model.targetId]) {
+        dispatch_async(dispatch_get_main_queue(), ^{
+            [self updateOnlineStatusDisplay];
         });
     }
 }
@@ -638,6 +725,31 @@
             addGestureRecognizer:[[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(headerImageDidTap)]];
     }
     return _headerView;
+}
+
+- (UIStackView *)titleStackView {
+    if (!_titleStackView) {
+        _titleStackView = [[UIStackView alloc] init];
+        _titleStackView.translatesAutoresizingMaskIntoConstraints = NO;
+        _titleStackView.axis = UILayoutConstraintAxisHorizontal;
+        _titleStackView.alignment = UIStackViewAlignmentCenter;
+        _titleStackView.spacing = 4; // 在线状态圆点和标题之间的间距
+        
+        [self.onlineStatusView setContentCompressionResistancePriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+        [self.onlineStatusView setContentHuggingPriority:UILayoutPriorityRequired forAxis:UILayoutConstraintAxisHorizontal];
+        
+        // 添加在线状态圆点和标题到 StackView
+        [_titleStackView addArrangedSubview:self.onlineStatusView];
+        [_titleStackView addArrangedSubview:self.conversationTitle];
+    }
+    return _titleStackView;
+}
+
+- (RCOnlineStatusView *)onlineStatusView {
+    if (!_onlineStatusView) {
+        _onlineStatusView = [[RCOnlineStatusView alloc] init];
+    }
+    return _onlineStatusView;
 }
 
 - (UILabel *)conversationTitle {
@@ -734,6 +846,14 @@
     }
     return NO;
 }
+
+    
+- (void)didUpdateCell {
+    if ([self.delegate respondsToSelector:@selector(didUpdateCell:model:)]) {
+        [self.delegate didUpdateCell:self model:self.model];
+    }
+}
+       
 
 #pragma mark - 向后兼容
 - (void)setHeaderImageViewBackgroundView:(UIView *)headerImageViewBackgroundView {

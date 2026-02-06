@@ -11,6 +11,9 @@
 #import <RongIMLibCore/RongIMLibCore.h>
 #import "RCKitCommonDefine.h"
 #import "RCAlertView.h"
+#import "RCMenuItem.h"
+#import "RCMenuController.h"
+
 @interface RCConversationViewController()
 @property (nonatomic, strong) RCMessageModel *currentSelectedModel;
 @end
@@ -26,25 +29,38 @@
         [self becomeFirstResponder];
     }
     CGRect rect = [self.view convertRect:view.frame fromView:view.superview];
-
-    UIMenuController *menu = [UIMenuController sharedMenuController];
-    [menu setMenuItems:[self getLongTouchSTTInfoMenuList:model]];
-    if (@available(iOS 13.0, *)) {
-        [menu showMenuFromView:self.view rect:rect];
+    NSArray *menuItems = [self getLongTouchSTTInfoMenuList:model];
+    if ([RCKitUtility isTraditionInnerThemes]) {
+        UIMenuController *menu = [UIMenuController sharedMenuController];
+        [menu setMenuItems:menuItems];
+        if (@available(iOS 13.0, *)) {
+            [menu showMenuFromView:self.view rect:rect];
+        } else {
+            [menu setTargetRect:rect inView:self.view];
+            [menu setMenuVisible:YES animated:YES];
+        }
     } else {
-        [menu setTargetRect:rect inView:self.view];
-        [menu setMenuVisible:YES animated:YES];
+        [[RCMenuController sharedMenuController] showMenuFromView:view
+                                                            menuItems:menuItems
+                                                        actionHandler:^(RCMenuItem * _Nonnull menuItem, NSInteger index) {
+            if ([self respondsToSelector:menuItem.action]) {
+                [self performSelector:menuItem.action
+                           withObject:[menuItems objectAtIndex:index]];
+            }
+        }];
     }
 }
 
 - (NSArray<UIMenuItem *> *)stt_getLongTouchSTTInfoMenuList:(RCMessageModel *)model {
     NSMutableArray *items = [NSMutableArray array];
 
-    UIMenuItem *copyItem = [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"Copy")
+    UIMenuItem *copyItem = [[RCMenuItem alloc] initWithTitle:RCLocalizedString(@"Copy")
+                                                       image:RCDynamicImage(@"conversation_menu_item_copy_img", @"")
                                                       action:@selector(stt_onCopyMessage:)];
     [items addObject:copyItem];
     UIMenuItem *sttItem =
-    [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"STTMenuItemUndo")
+    [[RCMenuItem alloc] initWithTitle:RCLocalizedString(@"STTMenuItemUndo")
+                                image:RCDynamicImage(@"conversation_menu_item_sound_transform_img", @"")
                                action:@selector(stt_onHideSTTInfo:)];
     [items addObject:sttItem];
     return items;
@@ -67,11 +83,13 @@
     if (info) {
         if (![info isSTTVisible]) {
             sttItem =
-            [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"STTMenuItemDo")
+            [[RCMenuItem alloc] initWithTitle:RCLocalizedString(@"STTMenuItemDo")
+                                        image:RCDynamicImage(@"conversation_menu_item_sound_transform_img", @"")
                                        action:@selector(stt_onShowSTTInfo:)];
         } else {
             sttItem =
-            [[UIMenuItem alloc] initWithTitle:RCLocalizedString(@"STTMenuItemUndo")
+            [[RCMenuItem alloc] initWithTitle:RCLocalizedString(@"STTMenuItemUndo")
+                                        image:RCDynamicImage(@"conversation_menu_item_sound_transform_img", @"")
                                        action:@selector(stt_onHideSTTInfo:)];
         }
     }

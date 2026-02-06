@@ -28,8 +28,7 @@
 }
 
 - (void)setupDots {
-    self.backgroundColor = [RCKitUtility generateDynamicColor:HEXCOLOR(0xffffff)
-                                                    darkColor:HEXCOLOR(0x1c1c1e)];
+    self.backgroundColor = RCDynamicColor(@"common_background_color", @"0xffffff", @"0x1c1c1e");
     // 创建三个圆点图层
     NSMutableArray *layers = [NSMutableArray array];
     NSArray *opacities = @[@0.3, @0.6, @1.0];
@@ -53,7 +52,8 @@
         
         dotLayer.frame = CGRectMake(x, y, dotDiameter, dotDiameter);
         dotLayer.cornerRadius = dotDiameter / 2.0;
-        dotLayer.backgroundColor = RCDYCOLOR(0x111f2c, 0xAAAAAA).CGColor;
+        UIColor *dotColor = RCDynamicColor(@"text_secondary_color", @"0x111f2c", @"0xAAAAAA");
+        dotLayer.backgroundColor = dotColor.CGColor;
         dotLayer.opacity = [opacities[i] floatValue];
         [self.layer addSublayer:dotLayer];
         [layers addObject:dotLayer];

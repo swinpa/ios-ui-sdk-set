@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
 
 
   s.name         = "RongCloudOpenSource"
-  s.version      = "5.24.2"
+  s.version      = "5.36.0"
   s.summary      = "RongCloud UI SDK SourceCode."
 
 
@@ -26,16 +26,15 @@ Pod::Spec.new do |s|
   s.user_target_xcconfig = { 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64' }
 
   s.subspec 'IMKit' do |kit|
-    kit.resources = "Resources/RongCloud.bundle", "Resources/en.lproj", "Resources/zh-Hans.lproj", "Resources/ar.lproj", "Resources/Emoji.plist", "Resources/RCColor.plist", "IMKit/Supporting\ Files/PrivacyInfo.xcprivacy"
+    kit.resources = "IMKit/Resources/*.bundle", "IMKit/Resources/*.lproj", "IMKit/Resources/*.plist", "IMKit/Supporting Files/PrivacyInfo.xcprivacy"
     kit.source_files = 'IMKit/RongIMKit.h','IMKit/**/*.{h,m,c}'
     kit.private_header_files = 'IMKit/Utility/Extension/*.h'
     kit.frameworks = "AssetsLibrary", "MapKit", "ImageIO", "CoreLocation", "SystemConfiguration", "QuartzCore", "OpenGLES", "CoreVideo", "CoreTelephony", "CoreMedia", "CoreAudio", "CFNetwork", "AudioToolbox", "AVFoundation", "UIKit", "CoreGraphics", "SafariServices"
-    kit.dependency 'RongCloudIM/IMLib','5.24.2'
-    kit.dependency 'SDWebImage'
+    kit.dependency 'RongCloudIM/IMLib','5.36.0'
   end
 
   s.subspec 'RongSticker' do |rs|
-  	rs.resources = "Resources/RongSticker.bundle"
+    rs.resources = "Sticker/Resources/*.bundle"
     rs.source_files = 'Sticker/RongSticker.h','Sticker/**/*.{h,m,c}'
     rs.private_header_files = 'Sticker/Extension/*.h','Sticker/Utilities/RCUnzip.h'
     rs.dependency 'RongCloudOpenSource/IMKit'
@@ -50,7 +49,7 @@ Pod::Spec.new do |s|
   s.subspec 'IFly' do |fly|
     fly.libraries = "z"
     fly.frameworks = "AddressBook", "SystemConfiguration", "CoreTelephony", "CoreServices", "Contacts"
-    fly.resources = "Resources/RongCloudiFly.bundle"
+    fly.resources = "iFlyKit/Resources/*.bundle"
     fly.source_files = 'iFlyKit/RongiFlyKit.h','iFlyKit/**/*.{h,m}'
     fly.dependency 'RongCloudOpenSource/IMKit'
     fly.vendored_frameworks = "iFlyKit/Engine/iflyMSC.framework"
@@ -68,12 +67,12 @@ Pod::Spec.new do |s|
     lokit.dependency 'RongCloudIM/Location'
   end
 
-  s.subspec 'RongCallKit' do |ck|
-    ck.source_files = 'CallKit/RongCallKit.h','CallKit/**/*.{h,m,mm}'
-    ck.private_header_files = 'CallKit/Header/*.h'
-    ck.resources = "Resources/RongCallKit.bundle"
-    ck.dependency 'RongCloudOpenSource/IMKit'
-    ck.dependency 'RongCloudRTC/RongCallLib'
-  end
+  # s.subspec 'RongCallKit' do |ck|
+  #   ck.source_files = 'CallKit/RongCallKit.h','CallKit/**/*.{h,m,mm}'
+  #   ck.private_header_files = 'CallKit/Header/*.h'
+  #   ck.resources = "Resources/RongCallKit.bundle"
+  #   ck.dependency 'RongCloudOpenSource/IMKit'
+  #   ck.dependency 'RongCloudRTC/RongCallLib'
+  # end
 
 end

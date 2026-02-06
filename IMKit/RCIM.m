@@ -45,6 +45,11 @@ NSString *const RCKitDispatchConversationStatusChangeNotification =
     @"RCKitDispatchConversationStatusChangeNotification";
 NSString *const RCKitDispatchConversationDraftUpdateNotification =
     @"RCKitDispatchConversationDraftUpdateNotification";
+NSString *const RCKitDispatchMessagesModifiedNotification = @"RCKitDispatchMessagesModifiedNotification";
+
+NSString *const RCKitConversationCellOnlineStatusUpdateNotification = @"RCKitConversationCellOnlineStatusUpdateNotification";
+NSString *const RCKitUserOnlineStatusChangedNotification = @"RCKitUserOnlineStatusChangedNotification";
+NSString *const RCKitUserOnlineStatusChangedUserIdsKey = @"RCKitUserOnlineStatusChangedUserIdsKey";
 
 @interface RCIM () <RCIMClientReceiveMessageDelegate, RCConnectionStatusChangeDelegate, RCMessageDestructDelegate,
                     RCConversationStatusChangeDelegate>
@@ -57,7 +62,7 @@ NSString *const RCKitDispatchConversationDraftUpdateNotification =
 @end
 
 static RCIM *__rongUIKit = nil;
-static NSString *const RCIMKitVersion = @"5.24.2_opensource";
+static NSString *const RCIMKitVersion = @"5.36.0_opensource";
 @implementation RCIM
 
 + (instancetype)sharedRCIM {
@@ -733,6 +738,18 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
 - (RCUserInfo *)getUserInfoCache:(NSString *)userId {
     return [[RCUserInfoCacheManager sharedManager] getUserInfo:userId];
 }
+//从cache和用户信息提供者取
+- (void)getUserInfo:(NSString *)userId complete:(void (^)(RCUserInfo *userInfo))completeBlock {
+    RCUserInfo *user = [[RCUserInfoCacheManager sharedManager] getUserInfoFromCacheOnly:userId];
+    if (user) {
+        if (completeBlock) {
+            completeBlock(user);
+        }
+    } else {
+        [[RCUserInfoCacheManager sharedManager] getUserInfo:userId
+                                                   complete:completeBlock];
+    }
+}
 
 - (void)refreshUserInfoCache:(RCUserInfo *)userInfo withUserId:(NSString *)userId {
     [[RCUserInfoCacheManager sharedManager] updateUserInfo:userInfo forUserId:userId];
@@ -845,6 +862,8 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
         return nil;
     }
 
+    [self setMessageNeedReadReceipt:message];
+    
     RCMessage *rcMessage = [[RCCoreClient sharedCoreClient] sendMessage:message pushContent:pushContent pushData:pushData successBlock:^(RCMessage *successMessage) {
         [self postSendMessageSentNotification:successMessage.targetId
                              conversationType:successMessage.conversationType
@@ -906,6 +925,8 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
     if ([self beforeInterceptSendMessage:message]) {
         return nil;
     }
+    
+    [self setMessageNeedReadReceipt:message];
     
     RCMessage *rcMessage = [[RCCoreClient sharedCoreClient] sendMessage:message pushContent:pushContent pushData:pushData successBlock:^(RCMessage *successMessage) {
         [self postSendMessageSentNotification:successMessage.targetId
@@ -977,6 +998,8 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
     if ([self beforeInterceptSendMessage:message]) {
         return nil;
     }
+    
+    [self setMessageNeedReadReceipt:message];
     
     RCMessage *rcMessage = [[RCCoreClient sharedCoreClient] sendDirectionalMessage:message toUserIdList:userIdList pushContent:pushContent pushData:pushData successBlock:^(RCMessage * _Nonnull successMessage) {
         [self postSendMessageSentNotification:successMessage.targetId
@@ -1182,6 +1205,8 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
         return nil;
     }
     
+    [self setMessageNeedReadReceipt:message];
+    
     RCMessage *rcMessage = [[RCCoreClient sharedCoreClient] sendMediaMessage:message pushContent:pushContent pushData:pushData progress:^(int progress, RCMessage *progressMessage) {
         NSDictionary *statusDic = @{
             @"targetId" : progressMessage.targetId,
@@ -1266,6 +1291,8 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
         return nil;
     }
 
+    [self setMessageNeedReadReceipt:message];
+    
     RCMessage *rcMessage = [[RCCoreClient sharedCoreClient] sendMediaMessage:message pushContent:pushContent pushData:pushData progress:^(int progress, RCMessage *progressMessage) {
         NSDictionary *statusDic = @{
             @"targetId" : progressMessage.targetId,
@@ -1331,6 +1358,9 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
                          cancel:(void (^)(long messageId))cancelBlock {
     RCConversationType conversationType = message.conversationType;
     NSString *targetId = [message.targetId copy];
+    
+    [self setMessageNeedReadReceipt:message];
+    
     RCMessage *rcMessage = [[RCCoreClient sharedCoreClient] sendMediaMessage:message pushContent:pushContent pushData:pushData uploadPrepare:uploadPrepareBlock progress:^(int progress, long messageId) {
         NSDictionary *statusDic = @{
             @"targetId" : targetId,
@@ -1472,6 +1502,27 @@ static NSString *const RCIMKitVersion = @"5.24.2_opensource";
         dispatch_async(dispatch_get_main_queue(), ^{
             [self.messageInterceptor interceptDidSendMessage:fullMessage];
         });
+    }
+}
+
+#pragma mark - 消息编辑
+
+- (void)onMessagesModified:(NSArray<RCMessage *> *)messages {
+    // 发送通知
+    [[NSNotificationCenter defaultCenter] postNotificationName:RCKitDispatchMessagesModifiedNotification
+                                                        object:messages
+                                                      userInfo:nil];
+}
+
+#pragma mark - 已读回执
+
+// 设置消息是否需要已读回执
+- (void)setMessageNeedReadReceipt:(RCMessage *)message {
+    BOOL isReadReceiptVersion5 = [[RCCoreClient sharedCoreClient] getAppSettings].readReceiptVersion == RCMessageReadReceiptVersion5;
+    if (isReadReceiptVersion5 &&
+        (message.conversationType == ConversationType_PRIVATE
+         || message.conversationType == ConversationType_GROUP)) {
+        message.needReceipt = YES;
     }
 }
 

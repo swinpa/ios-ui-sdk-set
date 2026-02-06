@@ -66,7 +66,7 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     [super viewDidLoad];
     self.automaticallyAdjustsScrollViewInsets = NO;
     self.collectionView.scrollsToTop = NO;
-    self.collectionView.backgroundColor = [UIColor blackColor];
+    self.collectionView.backgroundColor = RCDynamicColor(@"pop_layer_background_color", @"0x000000", @"0x000000");
     self.collectionView.showsHorizontalScrollIndicator = NO;
     self.collectionView.contentSize = CGSizeMake(SCREEN_WIDTH * self.previewPhotosArr.count, self.view.bounds.size.height);
     self.collectionView.pagingEnabled = YES;
@@ -166,10 +166,10 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     } else {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:reuseIdentifier forIndexPath:indexPath];
         //    [self _updateTopBarStatus];
-        //        __weak typeof(self) weakSelf = self;
+        __weak typeof(self) weakSelf = self;
         [cell setSingleTap:^{
-            //            weakSelf.topView.hidden = !weakSelf.topView.hidden;
-            //            weakSelf.bottomView.hidden = weakSelf.topView.hidden;
+            weakSelf.topView.hidden = !weakSelf.topView.hidden;
+            weakSelf.bottomView.hidden = weakSelf.topView.hidden;
         }];
     }
     [cell configPreviewCellWithItem:model];
@@ -389,8 +389,8 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
     [_topView addSubview:backButton];
 
     RCBaseButton *stateButton = [RCBaseButton buttonWithType:UIButtonTypeCustom];
-    [stateButton setImage:RCResourceImage(@"photo_preview_unselected") forState:UIControlStateNormal];
-    [stateButton setImage:RCResourceImage(@"photo_preview_selected") forState:UIControlStateSelected];
+    [stateButton setImage:RCDynamicImage(@"photo_preview_uncheck_img", @"photo_preview_unselected") forState:UIControlStateNormal];
+    [stateButton setImage:RCDynamicImage(@"photo_preview_check_img", @"photo_preview_selected") forState:UIControlStateSelected];
     [stateButton sizeToFit];
     stateButton.imageEdgeInsets = (UIEdgeInsets){12, 12, 12, 12};
     if ([UIApplication sharedApplication].statusBarFrame.size.height > 25) {
@@ -468,12 +468,6 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_editButton)]];
 
-        [_bottomView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[_sendButton]-32-[_fullButton]"
-                                                                            options:kNilOptions
-                                                                            metrics:nil
-                                                                              views:NSDictionaryOfVariableBindings(
-                                                                                        _fullButton, _sendButton)]];
-
         [_bottomView addConstraint:[NSLayoutConstraint constraintWithItem:_fullButton
                                                                 attribute:NSLayoutAttributeRight
                                                                 relatedBy:NSLayoutRelationEqual
@@ -515,12 +509,6 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                                                                    metrics:nil
                                                                      views:NSDictionaryOfVariableBindings(_editButton)]];
 
-        [_bottomView addConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"H:[_fullButton]-32-[_sendButton]"
-                                                                            options:kNilOptions
-                                                                            metrics:nil
-                                                                              views:NSDictionaryOfVariableBindings(
-                                                                                        _fullButton, _sendButton)]];
-
         [_bottomView addConstraint:[NSLayoutConstraint constraintWithItem:_sendButton
                                                                 attribute:NSLayoutAttributeRight
                                                                 relatedBy:NSLayoutRelationEqual
@@ -556,8 +544,8 @@ static NSString *const videoCellReuseIdentifier = @"VideoPreviewCell";
                       forState:UIControlStateNormal];
     [_fullButton setTitleColor:RCResourceColor(@"photoPreview_original_selected_text", @"0xffffff")
                       forState:UIControlStateSelected];
-    [_fullButton setImage:RCResourceImage(@"unselected_full") forState:UIControlStateNormal];
-    [_fullButton setImage:RCResourceImage(@"selected_full") forState:UIControlStateSelected];
+    [_fullButton setImage:RCDynamicImage(@"photo_preview_uncheck_img",@"unselected_full") forState:UIControlStateNormal];
+    [_fullButton setImage:RCDynamicImage(@"photo_preview_check_img",@"selected_full") forState:UIControlStateSelected];
     _fullButton.imageEdgeInsets = UIEdgeInsetsMake(5, 0, 5, 0);
     [self.bottomView setNeedsUpdateConstraints];
     [self.bottomView updateConstraintsIfNeeded];

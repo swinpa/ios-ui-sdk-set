@@ -19,6 +19,8 @@
 #import "RCBaseCollectionView.h"
 #import "RCBaseButton.h"
 #import "RCBaseImageView.h"
+#import "RCEditInputBarControl.h"
+#import "RCFullScreenEditView.h"
 
 @class RCLocationMessage;
 @class RCCustomerServiceInfo,RCPublicServiceMenuItem;
@@ -153,6 +155,12 @@ typedef enum : NSUInteger {
 
 /// 会话页面下方的输入工具栏
 @property (nonatomic, strong) RCChatSessionInputBarControl *chatSessionInputBarControl;
+
+/// 消息编辑普通输入框控件
+@property (nonatomic, strong) RCEditInputBarControl *editInputBarControl;
+
+/// 消息编辑全屏编辑视图
+@property (nonatomic, strong, nullable) RCFullScreenEditView *fullScreenEditView;
 
 /// 禁用系统表情, 建议在RCConversationViewController 创建后立刻赋值
 @property (nonatomic, assign) BOOL  disableSystemEmoji;
@@ -500,6 +508,8 @@ typedef enum : NSUInteger {
 /// - Returns: 是否执行内部逻辑，返回 YES 不执行 SDK 内部逻辑，NO 执行 SDK 内部逻辑，
 - (BOOL)didTapCommonPhrasesButton;
 
+- (void)didTapReceiptStatusView:(RCMessageModel *)model;
+
 #pragma mark - 语音消息、图片消息、位置消息、文件消息显示与操作
 
 /// 开始录制语音消息的回调
@@ -607,7 +617,6 @@ typedef enum : NSUInteger {
 /// 开发者如果想更换转发消息的选择会话界面，可以重写此方法，弹出自定义的选择会话界面，选择结束之后，调用completedBlock传入选中的会话即可。
 - (void)forwardMessage:(NSInteger)index completed:(void (^)(NSArray<RCConversation *> *conversationList))completedBlock;
 
-
 - (void)onCopyMessage:(id)sender;
 
 - (void)imageDidCapture:(UIImage *)image;
@@ -639,6 +648,7 @@ typedef enum : NSUInteger {
 - (void)setupUnReadMessageView;
 - (void)didReceiveMessageNotification:(NSNotification *)notification;
 - (void)didSendingMessageNotification:(NSNotification *)notification;
+- (void)addMentionedUserToCurrentInput:(RCUserInfo *)userInfo;
 
 @end
 NS_ASSUME_NONNULL_END

@@ -26,6 +26,10 @@
 #import "RCPublicServiceWebViewController.h"
 #import "NSDictionary+RCAccessor.h"
 #import "RCStreamUtilities.h"
+#import "RCRRSUtil.h"
+#import "RCKitConfig.h"
+#import "RCKitLanguageManager.h"
+
 @interface RCKitWeakRefObject : NSObject
 @property (nonatomic, weak) id weakRefObj;
 + (instancetype)refWithObject:(id)obj;
@@ -451,7 +455,8 @@
         }
     }
     NSString *fileTypeIcon = [RCKitUtility getFileTypeIcon:type];
-    return RCResourceImage(fileTypeIcon);
+    NSString *fileTypeKey = [NSString stringWithFormat:@"conversation_msg_cell_file_%@_img", fileTypeIcon];
+    return RCDynamicImage(fileTypeKey, fileTypeIcon);
 }
 
 + (NSString *)getFileTypeIcon:(NSString *)fileType {
@@ -536,26 +541,26 @@
     if (model.conversationModelType == RC_CONVERSATION_MODEL_TYPE_NORMAL) {
         if (model.conversationType == ConversationType_SYSTEM || model.conversationType == ConversationType_PRIVATE ||
             model.conversationType == ConversationType_CUSTOMERSERVICE) {
-            return RCResourceImage(@"default_portrait_msg");
+            return RCDynamicImage(@"conversation-list_cell_portrait_msg_img",@"default_portrait_msg");
         } else if (model.conversationType == ConversationType_GROUP) {
-            return RCResourceImage(@"default_group_portrait");
+            return RCDynamicImage(@"conversation-list_cell_group_portrait_img", @"default_group_portrait");
         } else if (model.conversationType == ConversationType_DISCUSSION) {
-            return RCResourceImage(@"default_discussion_portrait");
+            return RCDynamicImage(@"conversation-list_cell_discussion_portrait_img",@"default_discussion_portrait");
         }
     } else if (model.conversationModelType == RC_CONVERSATION_MODEL_TYPE_COLLECTION) {
         if (model.conversationType == ConversationType_PRIVATE || model.conversationType == ConversationType_SYSTEM) {
-            return RCResourceImage(@"default_portrait");
+            return RCDynamicImage(@"conversation-list_cell_portrait_img",@"default_portrait");
         } else if (model.conversationType == ConversationType_CUSTOMERSERVICE) {
-            return RCResourceImage(@"portrait_kefu");
+            return RCDynamicImage(@"conversation-list_cell_portrait_kefu_img",@"portrait_kefu");
         } else if (model.conversationType == ConversationType_DISCUSSION) {
-            return RCResourceImage(@"default_discussion_collection_portrait");
+            return RCDynamicImage(@"conversation-list_cell_discussion_collection_portrait_img", @"default_discussion_collection_portrait");
         } else if (model.conversationType == ConversationType_GROUP) {
-            return RCResourceImage(@"default_collection_portrait");
+            return RCDynamicImage(@"conversation-list_cell_collection_portrait_img",@"default_collection_portrait");
         }
     } else if (model.conversationModelType == RC_CONVERSATION_MODEL_TYPE_PUBLIC_SERVICE) {
-        return RCResourceImage(@"default_portrait");
+        return RCDynamicImage(@"conversation-list_cell_portrait_img",@"default_portrait");
     }
-    return RCResourceImage(@"default_portrait");
+    return RCDynamicImage(@"conversation-list_cell_portrait_img",@"default_portrait");
 }
 
 + (NSString *)defaultTitleForCollectionConversation:(RCConversationType)conversationType {
@@ -617,11 +622,20 @@
         return;
     }
     if (conversation.conversationType == ConversationType_PRIVATE && [RCKitConfigCenter.message.enabledReadReceiptConversationTypeList containsObject:@(conversation.conversationType)]) {
-        [[RCCoreClient sharedCoreClient] sendReadReceiptMessage:conversation.conversationType
-                                                     targetId:conversation.targetId
-                                                         time:conversation.sentTime
-                                                      success:nil
-                                                        error:nil];
+        if ([RCRRSUtil isSupportReadReceiptV5]) {
+            [[RCCoreClient sharedCoreClient] syncConversationReadStatus:conversation.conversationType
+                                                               targetId:conversation.targetId
+                                                                   time:conversation.sentTime
+                                                                success:nil
+                                                                  error:nil];
+        } else {
+            [[RCCoreClient sharedCoreClient] sendReadReceiptMessage:conversation.conversationType
+                                                           targetId:conversation.targetId
+                                                               time:conversation.sentTime
+                                                            success:nil
+                                                              error:nil];
+        }
+        
     } else if ((conversation.conversationType == ConversationType_PRIVATE &&
                 ![RCKitConfigCenter.message.enabledReadReceiptConversationTypeList containsObject:@(conversation.conversationType)]) ||
                conversation.conversationType == ConversationType_GROUP ||
@@ -1420,37 +1434,8 @@
     }
     return userInfo.name;
 }
-
-
 + (NSString *)localizedString:(NSString *)key table:(NSString *)table {
-    
-    NSString *language = [[NSLocale preferredLanguages] firstObject];
-    if (language.length == 0) {
-        return key;
-    }
-    NSString *fileNamePrefix = @"en";
-    if([language hasPrefix:@"zh"]) {
-        fileNamePrefix = @"zh-Hans";
-    } else if ([language hasPrefix:@"ar"]) {
-        fileNamePrefix = @"ar";
-    }
-    NSString *fullName = [NSString stringWithFormat:@"%@.strings", table];
-  
-    NSBundle *mainBundle = [NSBundle mainBundle];
-    NSString *path = [mainBundle pathForResource:fileNamePrefix ofType:@"lproj"];
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSString *filePath = [path stringByAppendingPathComponent:fullName];
-    if (![fileManager fileExistsAtPath:filePath]) {
-        NSBundle *frameworkBundle = [NSBundle bundleForClass:[self class]];
-        path = [frameworkBundle pathForResource:fileNamePrefix ofType:@"lproj"];
-    }
-    
-    NSBundle *bundle = [NSBundle bundleWithPath:path];
-    NSString *localizedString = [bundle localizedStringForKey:key value:nil table:table];
-    if (!localizedString) {
-        localizedString = key;
-    }
-    return localizedString;
+    return [[RCKitLanguageManager sharedManager] localizedStringForKey:key table:table];
 }
 
 
@@ -1505,5 +1490,9 @@
         }
     }
     return NO;
+}
+
++ (BOOL)isTraditionInnerThemes {
+    return [RCIMKitThemeManager currentInnerThemesType] == RCIMKitInnerThemesTypeTradition;
 }
 @end

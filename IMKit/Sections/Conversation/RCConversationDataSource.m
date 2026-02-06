@@ -25,6 +25,11 @@
 #import "RCConversationViewController+internal.h"
 #import "RCAlertView.h"
 #import "RCStreamMessageCell.h"
+#import "RCConversationDataSource+Edit.h"
+#import "RCConversationDataSource+RRS.h"
+#import "RCMenuController.h"
+#import "RCRRSUtil.h"
+
 typedef enum : NSUInteger {
     RCConversationLoadMessageVersion1,//消息先加载本地，本地加载完之后加载远端
     RCConversationLoadMessageVersion2,//使用消息断档方法异步加载
@@ -105,6 +110,7 @@ static BOOL msgRoamingServiceAvailable = YES;
         if((self.chatVC.conversationType == ConversationType_GROUP || self.chatVC.conversationType == ConversationType_DISCUSSION || self.chatVC.conversationType == ConversationType_ULTRAGROUP)) {
             if(RCKitConfigCenter.message.enableMessageMentioned) {
                 self.chatVC.chatSessionInputBarControl.isMentionedEnabled = YES;
+                self.chatVC.editInputBarControl.isMentionedEnabled = YES;
                 if (conversation.hasUnreadMentioned) {
                     self.unreadMentionedMessages =
                         [[[RCCoreClient sharedCoreClient] getUnreadMentionedMessages:self.chatVC.conversationType targetId:self.chatVC.targetId] mutableCopy];
@@ -175,6 +181,11 @@ static BOOL msgRoamingServiceAvailable = YES;
                 RCConversationViewController *chatVC = ws.chatVC;
                 NSUInteger dataRepositorycount = ws.chatVC.conversationDataRepository.count;
                 [chatVC.conversationDataRepository addObjectsFromArray:ws.cachedReloadMessages];
+            
+                // v5
+                NSMutableArray *itemToFetchReceipt = [NSMutableArray array];
+                [itemToFetchReceipt addObjectsFromArray:ws.cachedReloadMessages];
+                [self rrs_fetchReadReceiptV5Info:itemToFetchReceipt];
             
                 NSInteger itemsCount = [chatVC.conversationMessageCollectionView numberOfItemsInSection:0];
                 NSInteger differenceValue = chatVC.conversationDataRepository.count - itemsCount;
@@ -292,6 +303,9 @@ static BOOL msgRoamingServiceAvailable = YES;
 }
 
 - (void)showUnreadViewInMessageCell:(RCMessageModel *)model {
+    if ([self isSupportReadReceiptV5]) {
+        return;
+    }
     RCMessageModel *lastModel = self.chatVC.conversationDataRepository.lastObject;
 
     if (!self.showUnreadViewMessageId && !self.isLoadingHistoryMessage &&
@@ -441,15 +455,18 @@ static BOOL msgRoamingServiceAvailable = YES;
     }
     [self.chatVC.util sendReadReceiptResponseForMessages:messageArray];
     NSInteger count = 0;
+    NSMutableArray *itemToFetchReceipt = [NSMutableArray array];
     for (RCMessage *message in messageArray.reverseObjectEnumerator.allObjects) {
         RCMessage *checkedmessage = [self.chatVC willAppendAndDisplayMessage:message];
         if (checkedmessage) {
             RCMessageModel *model = [RCMessageModel modelWithMessage:checkedmessage];
             [self.chatVC.util figureOutLatestModel:model];
             [self.chatVC.conversationDataRepository addObject:model];
+            [itemToFetchReceipt addObject:model];
             count++;
         }
     }
+    [self rrs_fetchReadReceiptV5Info:itemToFetchReceipt];
     self.isIndicatorLoading = NO;
     return count;
 }
@@ -460,6 +477,8 @@ static BOOL msgRoamingServiceAvailable = YES;
     CGFloat increasedHeight = 0;
     NSMutableArray *indexPathes = [[NSMutableArray alloc] initWithCapacity:self.chatVC.defaultMessageCount];
     int indexPathCount = 0;
+    NSMutableArray *itemToFetchReceipt = [NSMutableArray array];
+    
     for (int i = 0; i < __messageArray.count; i++) {
         RCMessage *rcMsg = [__messageArray objectAtIndex:i];
         RCMessageModel *model = [RCMessageModel modelWithMessage:rcMsg];
@@ -470,6 +489,7 @@ static BOOL msgRoamingServiceAvailable = YES;
             [csModel disableEvaluate];
         }
         if ([self pushOldMessageModel:model]) {
+            [itemToFetchReceipt addObject:model];
             [self showUnreadViewInMessageCell:model];
             [indexPathes addObject:[NSIndexPath indexPathForItem:indexPathCount++ inSection:0]];
             CGSize itemSize = [self.chatVC collectionView:self.chatVC.conversationMessageCollectionView
@@ -493,6 +513,7 @@ static BOOL msgRoamingServiceAvailable = YES;
                 RCMessageModel *model = [RCMessageModel modelWithMessage:[self generateOldMessage]];
                 model.messageId = rcMsg.messageId;
                 [self.chatVC.conversationDataRepository insertObject:model atIndex:0];
+                [itemToFetchReceipt addObject:model];
                 [indexPathes addObject:[NSIndexPath indexPathForItem:indexPathCount++ inSection:0]];
                 CGSize itemSize = [self.chatVC collectionView:self.chatVC.conversationMessageCollectionView
                                                 layout:self.customFlowLayout
@@ -506,6 +527,7 @@ static BOOL msgRoamingServiceAvailable = YES;
             }
         }
     }
+    [self rrs_fetchReadReceiptV5Info:itemToFetchReceipt];
 
     if (self.chatVC.conversationDataRepository.count <= 0) {
         return;
@@ -723,12 +745,17 @@ static BOOL msgRoamingServiceAvailable = YES;
     if (isDoubleCallback) {
         [self.chatVC.conversationDataRepository removeAllObjects];
     }
+    NSMutableArray *itemToFetchReceipt = [NSMutableArray array];
+    
     for (int i = 0; i < messages.count; i++) {
         RCMessage *rcMsg = [messages objectAtIndex:i];
         RCMessageModel *model = [RCMessageModel modelWithMessage:rcMsg];
-        [self pushOldMessageModel:model];
+        if ([self pushOldMessageModel:model]) {
+            [itemToFetchReceipt addObject:model];
+        }
         [self showUnreadViewInMessageCell:model];
     }
+    [self rrs_fetchReadReceiptV5Info:itemToFetchReceipt];
     [self.chatVC.util figureOutAllConversationDataRepository];
     [self.chatVC.conversationMessageCollectionView reloadData];
     [self handleAfterLoadLastestMessage];
@@ -740,6 +767,7 @@ static BOOL msgRoamingServiceAvailable = YES;
     }
     [self.chatVC.util sendReadReceiptResponseForMessages:messages];
     NSMutableArray *indexPaths = [NSMutableArray array];
+    NSMutableArray *itemToFetchReceipt = [NSMutableArray array];
     for (RCMessage *message in messages) {
         RCMessage *checkedmessage = [self.chatVC willAppendAndDisplayMessage:message];
         if (checkedmessage) {
@@ -747,11 +775,13 @@ static BOOL msgRoamingServiceAvailable = YES;
             [self.chatVC.util figureOutLatestModel:model];
             if ([self appendMessageModel:model]) {
                 [self.chatVC.conversationDataRepository addObject:model];
+                [itemToFetchReceipt addObject:model];
                 NSIndexPath *indexPath = [NSIndexPath indexPathForItem:self.chatVC.conversationDataRepository.count - 1 inSection:0];
                 [indexPaths addObject:indexPath];
             }
         }
     }
+    [self rrs_fetchReadReceiptV5Info:itemToFetchReceipt];
     if (indexPaths.count > 0) {
         /* bugfix:PAASIOSDEV-259
          调用在 insertItemsAtIndexPaths 时, 需要满足以下公式:
@@ -770,7 +800,8 @@ static BOOL msgRoamingServiceAvailable = YES;
     option.count = self.chatVC.defaultMessageCount;
     option.order = order;
     __weak typeof(self) weakSelf = self;
-    void (^completeHandle)(NSArray *messages, BOOL isRemaining, RCErrorCode code, BOOL isDoubleCallback) = ^(NSArray *messages, BOOL isRemaining, RCErrorCode code, BOOL isDoubleCallback) {
+    
+    void (^updateMessageListBlock)(NSArray *messages, BOOL isRemaining, RCErrorCode code, BOOL isDoubleCallback) = ^(NSArray *messages, BOOL isRemaining, RCErrorCode code, BOOL isDoubleCallback) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         dispatch_async(dispatch_get_main_queue(), ^{
             strongSelf.isIndicatorLoading = NO;
@@ -798,6 +829,14 @@ static BOOL msgRoamingServiceAvailable = YES;
                 }
             }
         });
+    };
+    
+    
+    void (^completeHandle)(NSArray *messages, BOOL isRemaining, RCErrorCode code, BOOL isDoubleCallback) = ^(NSArray *messages, BOOL isRemaining, RCErrorCode code, BOOL isDoubleCallback) {
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        [strongSelf edit_refreshReferenceMessage:messages complete:^(NSArray<RCMessage *> *results) {
+            updateMessageListBlock(results, isRemaining, code, isDoubleCallback);
+        }];
     };
     
     if (self.chatVC.conversationType == ConversationType_ULTRAGROUP) {
@@ -907,13 +946,14 @@ static BOOL msgRoamingServiceAvailable = YES;
                 }
                 UIMenuController *menu = [UIMenuController sharedMenuController];
                 menu.menuVisible = NO;
+                [[RCMenuController sharedMenuController] hideMenuAnimated:NO];
                 // 是否显示右下未读消息数
-                if (strongSelf.chatVC.enableNewComingMessageIcon == YES && (MessagePersistent_ISCOUNTED == persistentFlag)) {
-                    if (![strongSelf isAtTheBottomOfTableView] &&
-                        ![rcMessage.senderUserId isEqualToString:[RCIM sharedRCIM].currentUserInfo.userId]) {
-                        [strongSelf.unreadNewMsgArr addObject:rcMessage];
-                        [strongSelf.chatVC updateUnreadMsgCountLabel];
-                    }
+                if (strongSelf.chatVC.enableNewComingMessageIcon == YES
+                    && (MessagePersistent_ISCOUNTED == persistentFlag)
+                    && ![strongSelf isAtTheBottomOfTableView]
+                    && ![rcMessage.senderUserId isEqualToString:[RCIM sharedRCIM].currentUserInfo.userId]) {
+                    [strongSelf.unreadNewMsgArr addObject:rcMessage];
+                    [strongSelf.chatVC updateUnreadMsgCountLabel];
                 }
                 if(![strongSelf isAtTheBottomOfTableView] && ![rcMessage.senderUserId isEqualToString:[RCIM sharedRCIM].currentUserInfo.userId]){
                     RCMentionedInfo *mentionedInfo = rcMessage.content.mentionedInfo;
@@ -956,7 +996,8 @@ static BOOL msgRoamingServiceAvailable = YES;
     if (self.chatVC.isConversationAppear && model.messageDirection == MessageDirection_RECEIVE &&
         (persistentFlag & MessagePersistent_ISPERSISTED)) {
         [self.chatVC.util syncReadStatus:model.sentTime needDelay:YES];
-        if ([RCKitConfigCenter.message.enabledReadReceiptConversationTypeList containsObject:@(self.chatVC.conversationType)] &&
+        if (![RCRRSUtil isSupportReadReceiptV5] &&
+            [RCKitConfigCenter.message.enabledReadReceiptConversationTypeList containsObject:@(self.chatVC.conversationType)] &&
             (self.chatVC.conversationType == ConversationType_PRIVATE ||
              self.chatVC.conversationType == ConversationType_Encrypted)) {
             dispatch_async(dispatch_get_main_queue(), ^{
@@ -1062,6 +1103,10 @@ static BOOL msgRoamingServiceAvailable = YES;
 
 - (void)didReloadRecalledMessage:(long)recalledMsgId {
     [[RCCoreClient sharedCoreClient] getMessage:recalledMsgId completion:^(RCMessage * _Nullable newMsg) {
+        if (newMsg.messageUId) {
+            [self edit_setUIReferenceMessagesEditStatus:RCReferenceMessageStatusRecalled forMessageUIds:@[newMsg.messageUId]];
+        }
+        
         dispatch_async(dispatch_get_main_queue(), ^{
             int index = -1;
             RCMessageModel *msgModel;
@@ -1161,6 +1206,9 @@ static BOOL msgRoamingServiceAvailable = YES;
             RCMessageModel *lastMessageModel = [self.chatVC.conversationDataRepository objectAtIndex:0];
             model.messageId = lastMessageModel.messageId;
             [self.chatVC.conversationDataRepository insertObject:model atIndex:0];
+            if (model) {
+                [self rrs_fetchReadReceiptV5Info:@[model]];
+            }
         }
         [self.chatVC.unReadButton removeFromSuperview];
         self.chatVC.unReadButton = nil;
@@ -1387,6 +1435,9 @@ static BOOL msgRoamingServiceAvailable = YES;
 - (void)delaySendReadReceiptMessage:(long long)sentTime {
     if (sentTime > 0) {
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if ([RCRRSUtil isSupportReadReceiptV5]) {
+                return;
+            }
             [[RCCoreClient sharedCoreClient] sendReadReceiptMessage:self.chatVC.conversationType
                                                          targetId:self.chatVC.targetId
                                                              time:sentTime
@@ -1455,9 +1506,10 @@ static BOOL msgRoamingServiceAvailable = YES;
         return NO;
     }
     if (!self.isShowingLastestMessage) {
-        self.isShowingLastestMessage = [self.chatVC.conversationMessageCollectionView
-            cellForItemAtIndexPath:[NSIndexPath indexPathForItem:self.chatVC.conversationDataRepository.count - 1
-                                                       inSection:0]] != nil;
+        NSIndexPath *lastIndexPath = [NSIndexPath indexPathForItem:self.chatVC.conversationDataRepository.count - 1
+                                                         inSection:0];
+        BOOL isLastMessageVisible = [[self.chatVC.conversationMessageCollectionView indexPathsForVisibleItems] containsObject:lastIndexPath];
+        self.isShowingLastestMessage = isLastMessageVisible;
     }
     return self.isShowingLastestMessage;
 }
@@ -1474,4 +1526,18 @@ static BOOL msgRoamingServiceAvailable = YES;
         [self.chatVC scrollToBottomAnimated:YES];
     }
 }
+
+- (BOOL)isSupportReadReceiptV5 {
+    return [[RCCoreClient sharedCoreClient] getAppSettings].readReceiptVersion == RCMessageReadReceiptVersion5;
+}
+
+#pragma mark - getter
+
+- (BOOL)isMentionedEnabled {
+    if((self.chatVC.conversationType == ConversationType_GROUP || self.chatVC.conversationType == ConversationType_DISCUSSION || self.chatVC.conversationType == ConversationType_ULTRAGROUP)) {
+        return RCKitConfigCenter.message.enableMessageMentioned;
+    }
+    return NO;
+}
+
 @end
