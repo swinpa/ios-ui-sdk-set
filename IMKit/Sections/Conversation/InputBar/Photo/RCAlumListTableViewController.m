@@ -37,7 +37,6 @@ static NSString *const cellReuseIdentifier = @"cell";
     self = [super init];
     if (self) {
         self.libraryList = [NSMutableArray new];
-        self.type = RCAlbumTypeAll;
     }
     return self;
 }
@@ -83,21 +82,16 @@ static NSString *const cellReuseIdentifier = @"cell";
 
 #pragma mark - Private Methods
 - (void)setNavigationItem{
-    UIView *rightBarView = [[UIView alloc] init];
-    rightBarView.frame = CGRectMake(0, 0, 80, 40);
-    UILabel *doneTitleLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 0, 80, 40)];
-    doneTitleLabel.text = RCLocalizedString(@"Cancel");
-    if([RCKitUtility isRTL]){
-        doneTitleLabel.textAlignment = NSTextAlignmentLeft;
-    }else{
-        doneTitleLabel.textAlignment = NSTextAlignmentRight;
-    }
-    doneTitleLabel.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
-    doneTitleLabel.textColor = [UIColor whiteColor];
-    [rightBarView addSubview:doneTitleLabel];
-    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(dismissCurrentModelViewController)];
-    [rightBarView addGestureRecognizer:tap];
-    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithCustomView:rightBarView];
+    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+    btn.titleLabel.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
+    UIColor *color = RCDynamicResourceColor(@"primary_color", @"photoPicker_cancel", @"0x0099ff");
+    [btn setTitleColor:color forState:UIControlStateNormal];
+    [btn addTarget:self
+            action:@selector(dismissCurrentModelViewController)
+  forControlEvents:UIControlEventTouchUpInside];
+    [btn setTitle:RCLocalizedString(@"Cancel") forState:UIControlStateNormal];
+    [btn sizeToFit];
+    UIBarButtonItem *rightItem = [[UIBarButtonItem alloc] initWithCustomView:btn];
     [self.navigationItem setRightBarButtonItem:rightItem];
 
 }
@@ -136,7 +130,6 @@ static NSString *const cellReuseIdentifier = @"cell";
 
 }
 
-
 - (void)setupTableView{
     [self.tableView registerClass:[RCAlbumTableCell class] forCellReuseIdentifier:cellReuseIdentifier];
     self.tableView.tableFooterView = [[UIView alloc] init];
@@ -164,16 +157,8 @@ static NSString *const cellReuseIdentifier = @"cell";
         [self.tableView reloadData];
     } else {
         [RCKitUtility showProgressViewFor:self.tableView text:nil animated:YES];
-        
-        NSInteger mediatype = 0;
-        if(self.type == RCAlbumTypePhotos) {
-            mediatype = 1;
-        }else if(self.type == RCAlbumTypeVideos) {
-            mediatype = 2;
-        }
-        
         [sharedAssetHelper
-         getAlbumsFromSystem:mediatype completion:^(NSArray *assetGroup) {
+            getAlbumsFromSystem:^(NSArray *assetGroup) {
                               if (assetGroup) {
                                   self.libraryList = assetGroup;
                               }
@@ -370,7 +355,6 @@ static NSString *const cellReuseIdentifier = @"cell";
     imagePickerVC.count = assetsGroup.count;
     imagePickerVC.currentAsset = assetsGroup.asset;
     imagePickerVC.title = assetsGroup.albumName;
-    
     __weak typeof(self) weakself = self;
     [imagePickerVC setSendPhotosBlock:^(NSArray *photos, BOOL isFull) {
         NSMutableArray *selectedPhotos = [NSMutableArray array];
@@ -400,7 +384,7 @@ static NSString *const cellReuseIdentifier = @"cell";
         _tipsLabel.textAlignment = NSTextAlignmentCenter;
         _tipsLabel.numberOfLines = 0;
         _tipsLabel.font = [[RCKitConfig defaultConfig].font fontOfSecondLevel];
-        _tipsLabel.textColor = [UIColor whiteColor];
+        _tipsLabel.textColor = RCDynamicColor(@"text_primary_color", @"0x000000", @"0x000000");
         _tipsLabel.text = RCLocalizedString(@"PhotoAccessRight");
         [self.view addSubview:_tipsLabel];
         _tipsLabel.hidden = YES;

@@ -258,12 +258,9 @@
 - (void)setupSubViews {
     
     if(self.style == RC_CHAT_INPUT_BAR_STYLE_TOOLBAR) {
-        
         [self addSubview:self.inputTextView];
         [self addSubview:self.recordButton];
         [self addSubview:self.switchButton];
-//        
-//        [self addSubview:self.inputContainer];
         [self addSubview:self.toolBar];
     }else{
         [self addSubview:self.switchButton];
@@ -272,13 +269,6 @@
         [self addSubview:self.emojiButton];
         [self addSubview:self.additionalButton];
     }
-    
-//    [self addSubview:self.switchButton];
-//    [self addSubview:self.inputTextView];
-//    [self addSubview:self.recordButton];
-//    [self addSubview:self.emojiButton];
-//    [self addSubview:self.additionalButton];
-//    [self addSubview:self.toolBar];
 }
 
 - (void)showInputTextView {
