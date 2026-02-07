@@ -109,8 +109,8 @@
 
     
     NSArray *buttons = @[
-        self.albumButton,
-        self.cameraButton,
+//        self.albumButton,
+//        self.cameraButton,
 //        self.giftButton,
         self.emojiButton
     ];
