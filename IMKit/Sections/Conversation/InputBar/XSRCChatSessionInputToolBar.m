@@ -87,8 +87,8 @@
 - (UIStackView *)stackView {
     if (!_stackView) {
         _stackView = [[UIStackView alloc] initWithArrangedSubviews:@[
-            self.albumButton,
-            self.cameraButton,
+//            self.albumButton,
+//            self.cameraButton,
 //            self.giftButton,
             self.emojiButton
         ]];
