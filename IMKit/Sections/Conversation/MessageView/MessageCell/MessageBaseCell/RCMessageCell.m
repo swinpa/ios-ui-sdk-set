@@ -130,6 +130,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
         }
         switch (model.sentStatus) {
             case SentStatus_SENDING:
+                [self.receiptView setImage:RCResourceImage(@"message_sending_status") forState:UIControlStateNormal];
                 [self updateStatusContentViewForSending:model];
                 break;
             case SentStatus_FAILED:
@@ -139,9 +140,11 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
                 [self updateStatusContentViewForCanceled:model];
                 break;
             case SentStatus_SENT:
+                [self.receiptView setImage:RCResourceImage(@"message_send_status") forState:UIControlStateNormal];
                 [self updateStatusContentViewForSent:model];
                 break;
             case SentStatus_READ:
+                [self.receiptView setImage:RCResourceImage(@"message_read_status") forState:UIControlStateNormal];
                 [self updateStatusContentViewForRead:model];
                 break;
             default:
