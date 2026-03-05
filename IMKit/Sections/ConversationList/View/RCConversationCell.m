@@ -24,6 +24,8 @@
 
 
 @property (nonatomic, strong) NSLayoutConstraint *unreadnumWidthConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *detailContentHeightConstraint;
+@property (nonatomic, strong) NSLayoutConstraint *titleStackCenterYConstraint;
 
 //当前 cell 正在展示的用户信息，消息携带用户信息且频发发送，会导致 cell 频发刷新
 //cell 复用的时候，检测如果是即将刷新的是同一个用户信息，那么就跳过刷新
@@ -108,7 +110,7 @@
     
     // fix: rce "部门"标签视图与时间视图重叠
     NSDictionary *cellSubViews =
-        NSDictionaryOfVariableBindings(_headerView, _conversationTitle, _messageCreatedTimeLabel, _detailContentView,
+        NSDictionaryOfVariableBindings(_headerView, _titleStackView, _messageCreatedTimeLabel, _detailContentView,
                                        _statusView, _conversationTagView);
     
     // 水平布局：头像 - StackView(在线状态+标题) - 标签 - 时间
@@ -116,7 +118,7 @@
     [self.contentView
         addConstraints:[NSLayoutConstraint
                            constraintsWithVisualFormat:@"H:|-16-[_headerView(width)]-12-"
-                                                       @"[_conversationTitle]-5-[_conversationTagView(50)]-5-"
+                                                       @"[_titleStackView]-5-[_conversationTagView(50)]-5-"
                                                        @"[_messageCreatedTimeLabel(>=80)]-16-|"
                                                options:0
                                                metrics:@{
@@ -135,7 +137,7 @@
     
     [self.contentView
         addConstraints:[NSLayoutConstraint
-                           constraintsWithVisualFormat:@"V:[_conversationTitle(21)]"
+                           constraintsWithVisualFormat:@"V:[_titleStackView(21)]"
                                                options:0
                                                metrics:nil
                                                  views:cellSubViews]];
@@ -156,7 +158,14 @@
                                                                options:0
                                                                metrics:nil
                                                                  views:cellSubViews]];
-    
+    self.detailContentHeightConstraint = [NSLayoutConstraint constraintWithItem:self.detailContentView
+                                                                        attribute:NSLayoutAttributeHeight
+                                                                        relatedBy:NSLayoutRelationEqual
+                                                                           toItem:nil
+                                                                        attribute:NSLayoutAttributeNotAnAttribute
+                                                                       multiplier:1
+                                                                         constant:16];
+    [self.contentView addConstraint:self.detailContentHeightConstraint];
     
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.statusView
                                                                  attribute:NSLayoutAttributeCenterY
@@ -177,34 +186,40 @@
     [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.conversationTagView
                                                                  attribute:NSLayoutAttributeCenterY
                                                                  relatedBy:NSLayoutRelationEqual
-                                                                    toItem:self.conversationTitle
+                                                                    toItem:self.titleStackView
                                                                  attribute:NSLayoutAttributeCenterY
                                                                 multiplier:1
                                                                   constant:0]];
     
-    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.headerView
-                                                                 attribute:NSLayoutAttributeBottom
+    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.detailContentView
+                                                                 attribute:NSLayoutAttributeTop
                                                                  relatedBy:NSLayoutRelationEqual
-                                                                    toItem:self.detailContentView
+                                                                    toItem:self.titleStackView
                                                                  attribute:NSLayoutAttributeBottom
                                                                 multiplier:1
-                                                                  constant:0]];
+                                                                  constant:8]];
 
-    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.conversationTitle
+    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:self.titleStackView
                                                                  attribute:NSLayoutAttributeTop
                                                                  relatedBy:NSLayoutRelationEqual
                                                                     toItem:self.messageCreatedTimeLabel
                                                                  attribute:NSLayoutAttributeTop
                                                                 multiplier:1
                                                                   constant:0]];
+    
+    self.titleStackCenterYConstraint = [NSLayoutConstraint constraintWithItem:self.titleStackView
+                                                                     attribute:NSLayoutAttributeCenterY
+                                                                     relatedBy:NSLayoutRelationEqual
+                                                                        toItem:self.headerView
+                                                                     attribute:NSLayoutAttributeCenterY
+                                                                    multiplier:1
+                                                                      constant:-12];
+    [self.contentView addConstraint:self.titleStackCenterYConstraint];
 
-    [self.contentView addConstraint:[NSLayoutConstraint constraintWithItem:_headerView
-                                                                 attribute:NSLayoutAttributeCenterY
-                                                                 relatedBy:NSLayoutRelationEqual
-                                                                    toItem:self.contentView
-                                                                 attribute:NSLayoutAttributeCenterY
-                                                                multiplier:1
-                                                                  constant:0]];
+    NSLayoutConstraint *headerCenterYConstraint =
+        [self.headerView.centerYAnchor constraintEqualToAnchor:self.centerYAnchor];
+    headerCenterYConstraint.priority = UILayoutPriorityRequired;
+    headerCenterYConstraint.active = YES;
     
     
     // 基础约束（放在 cell 右上角）
@@ -287,6 +302,29 @@
     
     // 更新在线状态显示
     [self updateOnlineStatusDisplay];
+    [self p_updateDetailContentHeightIfNeeded];
+}
+
+- (void)layoutSubviews {
+    [super layoutSubviews];
+    [self p_updateDetailContentHeightIfNeeded];
+}
+
+- (void)p_updateDetailContentHeightIfNeeded {
+    CGFloat messageHeight = ceil(self.detailContentView.messageContentLabel.font.lineHeight);
+    CGFloat highlightHeight = self.detailContentView.hightlineLabel.text.length > 0 ? ceil(self.detailContentView.hightlineLabel.font.lineHeight) : 0;
+    CGFloat statusHeight = self.detailContentView.sentStatusView.hidden ? 0 : 16;
+    CGFloat targetHeight = MAX(MAX(messageHeight, highlightHeight), statusHeight);
+    targetHeight = MIN(MAX(targetHeight, 1), 20);
+
+    if (ABS(self.detailContentHeightConstraint.constant - targetHeight) > 0.5) {
+        self.detailContentHeightConstraint.constant = targetHeight;
+    }
+
+    CGFloat titleCenterOffset = -(8.0 + targetHeight) / 2.0;
+    if (ABS(self.titleStackCenterYConstraint.constant - titleCenterOffset) > 0.5) {
+        self.titleStackCenterYConstraint.constant = titleCenterOffset;
+    }
 }
 
 - (void)p_displaySimaple:(RCConversationModel *)model {
