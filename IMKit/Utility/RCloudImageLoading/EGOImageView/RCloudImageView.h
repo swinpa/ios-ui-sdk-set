@@ -48,6 +48,12 @@
  是否缩放图片，如果不设置，当图片的宽度或者高度超过2000的时候，SDK内部会缩放图片，设置这个属性不会缩放
  */
 @property (nonatomic, assign) BOOL noScale;
+
+/**
+ 是否启用GIF动图播放，默认为NO。外部设置为YES后，如果图片数据是GIF格式，将自动播放动画。
+ */
+@property (nonatomic, assign) BOOL enableGIF;
+
 @property (nonatomic, weak) id<RCloudImageViewDelegate> delegate;
 
 - (void)setPlaceholderImage:(UIImage *)__placeholderImage;
