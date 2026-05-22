@@ -32,7 +32,7 @@
 #import <ImageIO/ImageIO.h>
 
 @implementation RCloudImageView
-@synthesize imageURL, placeholderImage, delegate;
+@synthesize imageURL, placeholderImage, delegate, enableGIF = _enableGIF;
 
 - (instancetype)initWithPlaceholderImage:(UIImage *)anImage {
     return [self initWithPlaceholderImage:anImage delegate:nil];
@@ -54,6 +54,16 @@
 
     self.image = placeholderImage;
 }
+- (void)setEnableGIF:(BOOL)enableGIF {
+    _enableGIF = enableGIF;
+    if (enableGIF && imageURL) {
+        NSData *cachedData = [[RCloudImageLoader sharedImageLoader] getImageDataForURL:imageURL];
+        if (cachedData && [self p_isGIFData:cachedData]) {
+            [self p_trySetAnimatedGIF:cachedData];
+        }
+    }
+}
+
 - (void)setImageURL:(NSURL *)aURL {
     //    self.contentMode = UIViewContentModeScaleAspectFill;
     if (imageURL) {
@@ -189,8 +199,12 @@
                             }
                         }
                         if (!doNothing && image) {
-                            NSData *imageResource = UIImagePNGRepresentation(image);
-                            [imageResource writeToFile:path atomically:YES];
+                            // 避免覆盖 GIF 原始数据
+                            NSData *existingData = [NSData dataWithContentsOfFile:path];
+                            if (!existingData || ![self p_isGIFData:existingData]) {
+                                NSData *imageResource = UIImagePNGRepresentation(image);
+                                [imageResource writeToFile:path atomically:YES];
+                            }
                         }
 
                     }
@@ -240,9 +254,13 @@
                         });
                     }
                     if (!doNothing) {
-                        NSData *imageResource = UIImagePNGRepresentation(image);
                         NSString *imagePath = [[RCloudImageLoader sharedImageLoader] cachePathForURL:imageURL];
-                        [imageResource writeToFile:imagePath atomically:YES];
+                        // 避免覆盖 GIF 原始数据
+                        NSData *existingData = [NSData dataWithContentsOfFile:imagePath];
+                        if (!existingData || ![self p_isGIFData:existingData]) {
+                            NSData *imageResource = UIImagePNGRepresentation(image);
+                            [imageResource writeToFile:imagePath atomically:YES];
+                        }
                     }
                 }
             }
@@ -304,9 +322,13 @@
             [self setNeedsDisplay];
         });
         if (!doNothing) {
-            NSData *imageResource = UIImagePNGRepresentation(image);
             NSString *imagePath = [[RCloudImageLoader sharedImageLoader] cachePathForURL:self.imageURL];
-            [imageResource writeToFile:imagePath atomically:YES];
+            // 避免覆盖 GIF 原始数据
+            NSData *existingData = [NSData dataWithContentsOfFile:imagePath];
+            if (!existingData || ![self p_isGIFData:existingData]) {
+                NSData *imageResource = UIImagePNGRepresentation(image);
+                [imageResource writeToFile:imagePath atomically:YES];
+            }
         }
     } progressBlock:^(UIImage *image, BOOL doNothing){}];
 }
