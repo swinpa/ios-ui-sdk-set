@@ -29,6 +29,24 @@
     return bubbleImage;
 }
 
++ (UIImage *)getDefaultMessageCellBackgroundImage:(RCMessageModel *)model isRTL:(BOOL)isRTL {
+    UIImage *bubbleImage;
+    if (MessageDirection_RECEIVE == model.messageDirection) {
+        bubbleImage = RCDynamicImage(@"conversation_msg_cell_bg_from_img", @"chat_from_bg_normal");
+    } else {
+        if ([self isWhiteBubbleImageWithSendMesageCell:model.objectName]) {
+            bubbleImage = RCDynamicImage(@"conversation_msg_cell_bg_white_img", @"chat_to_bg_white");
+        }else{
+            bubbleImage = RCDynamicImage(@"conversation_msg_cell_bg_to_img", @"chat_to_bg_normal");
+        }
+    }
+    if (isRTL) {
+        bubbleImage = [bubbleImage imageFlippedForRightToLeftLayoutDirection];
+    }
+    bubbleImage = [self getResizableImage:bubbleImage];
+    return bubbleImage;
+}
+
 + (UIImage *)translationTextBackgroundImage {
     UIImage *bubbleImage = RCDynamicImage(@"conversation_msg_cell_bg_to_img", @"translation_from_bg_normal");
     bubbleImage = [self getResizableImage:bubbleImage];

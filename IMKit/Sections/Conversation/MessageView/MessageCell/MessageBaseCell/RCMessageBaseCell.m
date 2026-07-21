@@ -56,6 +56,18 @@ NSString *const KNotificationMessageBaseCellUpdateSendingStatus = @"KNotificatio
     return _delegate;
 }
 
+- (BOOL)rc_isRTL {
+    if (self.layoutDirection == RCKitInterfaceLayoutDirectionUnspecified){
+        UIWindow *window = [RCKitUtility getKeyWindow];
+        UISemanticContentAttribute attr = window.semanticContentAttribute;
+        UIUserInterfaceLayoutDirection _layoutDirection = [UIView userInterfaceLayoutDirectionForSemanticContentAttribute:attr];
+        return _layoutDirection == UIUserInterfaceLayoutDirectionRightToLeft;
+    } else if (self.layoutDirection == RCKitInterfaceLayoutDirectionRightToLeft){
+        return YES;
+    }
+    return NO;
+}
+
 - (void)layoutSubviews {
     [super layoutSubviews];
     [self setBaseAutoLayout];
@@ -96,8 +108,10 @@ NSString *const KNotificationMessageBaseCellUpdateSendingStatus = @"KNotificatio
     self.model = nil;
     self.baseContentView = [[UIView alloc] initWithFrame:CGRectZero];
     self.isDisplayReadStatus = NO;
+    self.layoutDirection = RCKitConfigCenter.ui.layoutDirection;
     [self.contentView addSubview:_baseContentView];
 }
+
 
 - (void)setBaseAutoLayout {
     if (self.isDisplayMessageTime) {
@@ -154,7 +168,7 @@ NSString *const KNotificationMessageBaseCellUpdateSendingStatus = @"KNotificatio
                                 2; //如果消息有头像，头像距离 baseContentView 顶部距离为 10
     if (MessageDirection_RECEIVE == self.model.messageDirection) {
         if (frame.origin.x < 3) { // cell不是左顶边的时候才会偏移
-            if ([RCKitUtility isRTL]) {
+            if ([self rc_isRTL]) {
                 frame.origin.x = frame.origin.x - 12 - SelectButtonSpaceLeft;
             } else {
                 frame.origin.x = SelectButtonSpaceLeft + 12;
@@ -163,7 +177,7 @@ NSString *const KNotificationMessageBaseCellUpdateSendingStatus = @"KNotificatio
         self.baseContentView.frame = frame;
     }
     CGRect selectButtonFrame = CGRectMake(SelectButtonSpaceLeft, selectButtonY, 20, 20);
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         if (MessageDirection_RECEIVE == self.model.messageDirection) {
             selectButtonFrame.origin.x = frame.origin.x + frame.size.width - SelectButtonSpaceLeft;
         } else {

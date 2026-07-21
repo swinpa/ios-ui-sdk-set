@@ -349,7 +349,7 @@ static RCMessageDirection s_previousMessageDirection;
     }
     DebugLog(@"playingIndicatorIndex > %@", playingIndicatorIndex);
     UIImage *image = RCDynamicImage(playingIndicatorIndexKey, playingIndicatorIndex);
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         image = [image imageFlippedForRightToLeftLayoutDirection];
     }
     self.playVoiceView.image = image;

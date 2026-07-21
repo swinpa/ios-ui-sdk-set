@@ -64,7 +64,7 @@
                                     font:[[RCKitConfig defaultConfig].font fontOfFourthLevel]
                          constrainedSize:CGSizeMake([RCTipMessageCell getMaxLabelWidth], MAXFLOAT)];
         CGRect frame = CGRectMake((self.baseContentView.bounds.size.width - labelSize.width - buttonTitleSize.width) / 2.0f - 5, 0, labelSize.width + 10 + buttonTitleSize.width, labelSize.height);
-        if ([RCKitUtility isRTL]) {
+        if ([self rc_isRTL]) {
             self.reeditLabel.frame = CGRectMake(7, 1, buttonTitleSize.width, 22);
             self.tipMessageLabel.frame = frame;
             self.tipMessageLabel.textAlignment = NSTextAlignmentRight;

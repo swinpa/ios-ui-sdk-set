@@ -1029,7 +1029,7 @@ static NSString *const rcMessageBaseCellIndentifier = @"rcMessageBaseCellIndenti
 
     if (self.cellMsgDict[objName]) {
         cell = [collectionView dequeueReusableCellWithReuseIdentifier:objName forIndexPath:indexPath];
-
+        cell.layoutDirection = RCKitInterfaceLayoutDirectionLeftToRight;
         if ([messageContent isMemberOfClass:[RCPublicServiceMultiRichContentMessage class]]) {
             [(RCPublicServiceMultiImgTxtCell *)cell
                 setPublicServiceDelegate:(id<RCPublicServiceMessageCellDelegate>)self];

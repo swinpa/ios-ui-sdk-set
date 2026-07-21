@@ -111,7 +111,7 @@
 - (void)setDestructViewLayout {
     [super setDestructViewLayout];
     if (self.model.content.destructDuration > 0) {
-        if ([RCKitUtility isRTL]) {
+        if ([self rc_isRTL]) {
             self.destructTextImage.frame = CGRectMake(DESTRUCT_TEXT_ICON_WIDTH , (CGRectGetHeight(self.messageContentView.frame) - DESTRUCT_TEXT_ICON_HEIGHT) / 2, DESTRUCT_TEXT_ICON_WIDTH, DESTRUCT_TEXT_ICON_HEIGHT);
         } else {
             self.destructTextImage.frame = CGRectMake(self.messageContentView.frame.size.width-DESTRUCT_TEXT_ICON_WIDTH-TEXT_SPACE_RIGHT,(CGRectGetHeight(self.messageContentView.frame) - DESTRUCT_TEXT_ICON_HEIGHT)/ 2, DESTRUCT_TEXT_ICON_WIDTH, DESTRUCT_TEXT_ICON_HEIGHT);
@@ -160,14 +160,16 @@
     
     if (self.model.messageDirection == MessageDirection_RECEIVE) {
         [self.textLabel setTextColor:RCDynamicColor(@"text_primary_color", @"0x262626", @"0xffffffcc")];
-        if ([RCKitUtility isRTL] && !self.destructTextImage.hidden) {
+        if ([self rc_isRTL] && !self.destructTextImage.hidden) {
             self.textLabel.frame =  CGRectMake(DESTRUCT_TEXT_ICON_WIDTH / 2 + DESTRUCT_TEXT_ICON_WIDTH + TEXT_SPACE_LEFT, (bubbleHeight - labelSize.height) / 2, labelSize.width, labelSize.height);
         } else {
             self.textLabel.frame =  CGRectMake(TEXT_SPACE_LEFT, (bubbleHeight - labelSize.height) / 2, labelSize.width, labelSize.height);
         }
+//        self.textLabel.textAlignment = NSTextAlignmentLeft;
     } else {
         [self.textLabel setTextColor:RCDynamicColor(@"text_primary_color", @"0x262626", @"0x040A0F")];
         self.textLabel.frame =  CGRectMake(TEXT_SPACE_LEFT, (bubbleHeight - labelSize.height) / 2, labelSize.width, labelSize.height);
+//        self.textLabel.textAlignment = NSTextAlignmentRight;
     }
     
     if (textMessage.destructDuration > 0 && self.model.messageDirection == MessageDirection_RECEIVE && !numDuration) {
@@ -307,11 +309,11 @@
         [_textLabel setFont:[[RCKitConfig defaultConfig].font fontOfSecondLevel]];
         _textLabel.numberOfLines = 0;
         [_textLabel setLineBreakMode:NSLineBreakByWordWrapping];
-        if([RCKitUtility isRTL]){
-            _textLabel.textAlignment = NSTextAlignmentRight;
-        }else{
+//        if([RCKitUtility isRTL]){
+//            _textLabel.textAlignment = NSTextAlignmentRight;
+//        }else{
             _textLabel.textAlignment = NSTextAlignmentLeft;
-        }
+//        }
         _textLabel.delegate = self;
         _textLabel.userInteractionEnabled = YES;
         _textLabel.attributeDictionary = [self attributeDictionary];

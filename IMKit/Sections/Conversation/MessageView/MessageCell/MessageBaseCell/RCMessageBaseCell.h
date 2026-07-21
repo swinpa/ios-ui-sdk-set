@@ -13,6 +13,7 @@
 #import <RongIMLibCore/RongIMLibCore.h>
 #import <UIKit/UIKit.h>
 #import "RCBaseCollectionViewCell.h"
+#import "RCKitConfig.h"
 
 /*!
  消息发送状态更新的Notification
@@ -92,6 +93,14 @@ UIKIT_EXTERN NSString *const KNotificationMessageBaseCellUpdateSendingStatus;
  是否允许选择
  */
 @property (nonatomic) BOOL allowsSelection;
+
+/*!
+ 是否允许选择
+ */
+@property (nonatomic) RCKitInterfaceLayoutDirection layoutDirection;
+
+
+@property (nonatomic,readonly) BOOL rc_isRTL;
 
 /*!
  初始化消息Cell

@@ -50,7 +50,7 @@
     NSString *timeText = nil;
     NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970:secs];
     NSDateFormatter *formatter = [self getDateFormatter];
-    NSString *locale = RCLocalizedString(@"locale");
+    NSString *locale = RCLocalizedString(@"en_US_POSIX");
     [formatter setLocale:[[NSLocale alloc] initWithLocaleIdentifier:locale]];
     if ([self isSameYear:messageDate]) {
         NSInteger intervalDays = [self getIntervalDays:messageDate];
@@ -77,7 +77,7 @@
     NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970:secs];
     NSDateFormatter *formatter = [self getDateFormatter];
     [formatter setLocale:[[NSLocale alloc]
-                             initWithLocaleIdentifier:RCLocalizedString(@"locale")]];
+                             initWithLocaleIdentifier:RCLocalizedString(@"en_US_POSIX")]];//RCLocalizedString(@"locale")
     if ([self isSameYear:messageDate]) {
         
         NSInteger intervalDays = [self getIntervalDays:messageDate];

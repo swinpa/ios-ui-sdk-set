@@ -340,7 +340,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
     [self.messageContentView registerFrameChangedEvent:^(CGRect frame) {
         __strong typeof(weakSelf) strongSelf = weakSelf;
         if (strongSelf.model) {
-            if ([RCKitUtility isRTL]) {
+            if ([self rc_isRTL]) {
                 if (strongSelf.model.messageDirection == MessageDirection_SEND) {
                     CGRect statusFrame = CGRectMake(CGRectGetMaxX(frame)+StatusViewAndContentViewSpace, frame.origin.y, StatusContentViewWidth, frame.size.height);
                     strongSelf.statusContentView.frame = statusFrame;
@@ -396,7 +396,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
             CGRect rect = CGRectMake(0, 0, size.width, size.height);
             CGFloat protraitWidth = RCKitConfigCenter.ui.globalMessagePortraitSize.width;
 
-            if ([RCKitUtility isRTL]) {
+            if ([self rc_isRTL]) {
                 if(strongSelf.model.messageDirection == MessageDirection_RECEIVE) {
                     if (strongSelf.showPortrait) {
                         rect.origin.x = strongSelf.baseContentView.bounds.size.width - (size.width + HeadAndContentSpacing + protraitWidth + PortraitViewEdgeSpace);
@@ -493,7 +493,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
     CGRect nicknameFrame = self.nicknameLabel.frame;
     CGRect contentFrame = self.messageContentView.frame;
     CGSize size = contentFrame.size;
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         // receiver
         if (MessageDirection_RECEIVE == self.model.messageDirection) {
             CGFloat nameOffset_X = 0;
@@ -545,7 +545,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
     CGFloat protraitWidth = RCKitConfigCenter.ui.globalMessagePortraitSize.width;
     CGFloat protraitHeight = RCKitConfigCenter.ui.globalMessagePortraitSize.height;
 
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         // receiver
         if (MessageDirection_RECEIVE == self.model.messageDirection) {
             [self.nicknameLabel setTextAlignment:NSTextAlignmentRight];
@@ -602,7 +602,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
             frame.size.width = textWidth;
             self.destructBtn.frame = frame;
         }
-        if ([RCKitUtility isRTL]) {
+        if ([self rc_isRTL]) {
             if (self.messageDirection == MessageDirection_RECEIVE) {
                 self.destructView.frame = CGRectMake(- frame.size.width/2, - frame.size.height/2, frame.size.width, frame.size.height);
             } else {
@@ -783,7 +783,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
     }
     
     // 处理RTL布局
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         bubbleImage = [bubbleImage imageFlippedForRightToLeftLayoutDirection];
     }
     
@@ -1146,7 +1146,7 @@ NSString *const KNotificationMessageBaseCellUpdateCanReceiptStatus =
 - (UILabel *)receiptStatusLabel {
     if (!_receiptStatusLabel) {
         _receiptStatusLabel = [[UILabel alloc] init];
-        _receiptStatusLabel.textAlignment = [RCKitUtility isRTL] ? NSTextAlignmentLeft : NSTextAlignmentRight;
+        _receiptStatusLabel.textAlignment = [self rc_isRTL] ? NSTextAlignmentLeft : NSTextAlignmentRight;
         _receiptStatusLabel.font = [[RCKitConfig defaultConfig].font fontOfAssistantLevel];
         _receiptStatusLabel.textColor = RCDynamicColor(@"primary_color", @"0x0099ff", @"0x595959");
         _receiptStatusLabel.hidden = YES;

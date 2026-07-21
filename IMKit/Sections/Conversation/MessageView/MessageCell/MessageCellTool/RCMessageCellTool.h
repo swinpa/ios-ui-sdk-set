@@ -15,6 +15,7 @@
 
 @interface RCMessageCellTool : NSObject
 + (UIImage *)getDefaultMessageCellBackgroundImage:(RCMessageModel *)model;
++ (UIImage *)getDefaultMessageCellBackgroundImage:(RCMessageModel *)model isRTL:(BOOL)isRTL;
 + (CGFloat)getMessageContentViewMaxWidth;
 + (CGSize)getThumbnailImageSize:(UIImage *)image;
 + (NSDictionary *)getTextLinkOrPhoneNumberAttributeDictionary:(RCMessageDirection)msgDirection;

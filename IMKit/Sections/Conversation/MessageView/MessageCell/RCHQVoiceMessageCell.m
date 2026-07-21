@@ -284,7 +284,7 @@ static RCMessageDirection hq_previousMessageDirection;
     CGFloat audioBubbleWidth = [self getBubbleWidth:voiceMessage.duration];
     CGFloat voiceHeight = RCKitConfigCenter.ui.globalMessagePortraitSize.height;
     self.messageContentView.contentSize = CGSizeMake(audioBubbleWidth, voiceHeight);
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         if (self.model.messageDirection == MessageDirection_SEND) {
             self.playVoiceView.image = RCDynamicImage(@"conversation_msg_cell_receive_voice_3_img",@"from_voice_3");
             [self.voiceDurationLabel setTextColor:RCDynamicColor(@"text_primary_color", @"0x111f2c", @"0xffffffcc")];
@@ -352,7 +352,7 @@ static RCMessageDirection hq_previousMessageDirection;
     CGFloat voiceHeight = size.height;
     if (MessageDirection_RECEIVE == self.model.messageDirection) {
         CGFloat x = CGRectGetMaxX(self.messageContentView.frame) + 8;
-        if ([RCKitUtility isRTL]) {
+        if ([self rc_isRTL]) {
             x = CGRectGetMinX(self.messageContentView.frame) - 8 - voice_Unread_View_Width;
         }
         if (NO == self.model.receivedStatusInfo.isListened) {
@@ -385,7 +385,7 @@ static RCMessageDirection hq_previousMessageDirection;
         CGFloat voiceHeight = size.height;
         if (MessageDirection_RECEIVE == self.model.messageDirection) {
             CGFloat x = CGRectGetMaxX(self.messageContentView.frame) + 8;
-            if ([RCKitUtility isRTL]) {
+            if ([self rc_isRTL]) {
                 x = CGRectGetMinX(self.messageContentView.frame) - 8 - voice_Unread_View_Width;
             }
             if (NO == self.model.receivedStatusInfo.isListened) {
@@ -612,7 +612,7 @@ static RCMessageDirection hq_previousMessageDirection;
     }
     DebugLog(@"playingIndicatorIndex > %@", playingIndicatorIndex);
     UIImage *image = RCDynamicImage(playingIndicatorIndexKey, playingIndicatorIndex);
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         image = [image imageFlippedForRightToLeftLayoutDirection];
     }
     self.playVoiceView.image = image;
@@ -630,7 +630,7 @@ static RCMessageDirection hq_previousMessageDirection;
     } else {
         image = RCDynamicImage(@"conversation_msg_cell_receive_voice_3_img",@"from_voice_3");
     }
-    if ([RCKitUtility isRTL]) {
+    if ([self rc_isRTL]) {
         self.playVoiceView.image = [image imageFlippedForRightToLeftLayoutDirection];
     } else {
         self.playVoiceView.image = image;

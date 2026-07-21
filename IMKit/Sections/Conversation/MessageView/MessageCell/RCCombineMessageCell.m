@@ -85,7 +85,7 @@
     NSMutableParagraphStyle *paragraphStyle = [[NSMutableParagraphStyle alloc] init];
     [paragraphStyle setLineSpacing:CONTENTLINESPACE];//设置行间距
     paragraphStyle.lineBreakMode = NSLineBreakByTruncatingTail;
-    if([RCKitUtility isRTL]){
+    if([self rc_isRTL]){
         paragraphStyle.alignment = NSTextAlignmentRight;
     }else{
         paragraphStyle.alignment = NSTextAlignmentLeft;

@@ -79,7 +79,7 @@ NSString *const RCComplexTextMessageCellIdentifier = @"RCComplexTextMessageCellI
 - (void)setDestructViewLayout {
     [super setDestructViewLayout];
     if (self.model.content.destructDuration > 0) {
-        if ([RCKitUtility isRTL]) {
+        if ([self rc_isRTL]) {
             self.destructTextImage.frame = CGRectMake(DESTRUCT_TEXT_ICON_WIDTH , CGRectGetMidY(self.messageContentView.frame) - DESTRUCT_TEXT_ICON_HEIGHT / 2, DESTRUCT_TEXT_ICON_WIDTH, DESTRUCT_TEXT_ICON_HEIGHT);
         } else {
             self.destructTextImage.frame = CGRectMake(self.messageContentView.frame.size.width-DESTRUCT_TEXT_ICON_WIDTH-TEXT_SPACE_RIGHT,CGRectGetMidY(self.messageContentView.frame) - DESTRUCT_TEXT_ICON_HEIGHT / 2, DESTRUCT_TEXT_ICON_WIDTH, DESTRUCT_TEXT_ICON_HEIGHT);
@@ -118,7 +118,7 @@ NSString *const RCComplexTextMessageCellIdentifier = @"RCComplexTextMessageCellI
 
     self.messageContentView.contentSize = CGSizeMake(bubbleWidth, bubbleHeight);
     if (self.model.messageDirection == MessageDirection_RECEIVE) {
-        if ([RCKitUtility isRTL] && !self.destructTextImage.hidden) {
+        if ([self rc_isRTL] && !self.destructTextImage.hidden) {
             self.contentAyncLab.frame =  CGRectMake(DESTRUCT_TEXT_ICON_WIDTH / 2 + DESTRUCT_TEXT_ICON_WIDTH + TEXT_SPACE_LEFT, (bubbleHeight - labelSize.height) / 2, labelSize.width, labelSize.height);
         } else {
             self.contentAyncLab.frame =  CGRectMake(TEXT_SPACE_LEFT, (bubbleHeight - labelSize.height) / 2, labelSize.width, labelSize.height);

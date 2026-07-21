@@ -261,7 +261,7 @@ extern NSString *const RCKitDispatchDownloadMediaNotification;
 
 - (void)displayCancelButton {
     dispatch_async(dispatch_get_main_queue(), ^{
-        if([RCKitUtility isRTL]){
+        if([self rc_isRTL]){
             self.baseContentView.semanticContentAttribute = UISemanticContentAttributeForceRightToLeft;
         }else{
             self.baseContentView.semanticContentAttribute = UISemanticContentAttributeForceLeftToRight;
@@ -302,7 +302,7 @@ extern NSString *const RCKitDispatchDownloadMediaNotification;
         _nameLabel.numberOfLines = 2;
         _nameLabel.textColor = RCDynamicColor(@"text_primary_color", @"0x111f2c", @"0xffffffcc");
         _nameLabel.lineBreakMode = NSLineBreakByTruncatingMiddle;
-        if([RCKitUtility isRTL]){
+        if([self rc_isRTL]){
             _nameLabel.textAlignment = NSTextAlignmentRight;
         }else{
             _nameLabel.textAlignment = NSTextAlignmentLeft;
