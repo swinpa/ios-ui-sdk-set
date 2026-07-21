@@ -87,7 +87,7 @@
 - (UIStackView *)stackView {
     if (!_stackView) {
         _stackView = [[UIStackView alloc] initWithArrangedSubviews:@[
-//            self.albumButton,
+            self.albumButton,
 //            self.cameraButton,
 //            self.giftButton,
             self.emojiButton
@@ -109,7 +109,7 @@
 
     
     NSArray *buttons = @[
-//        self.albumButton,
+        self.albumButton,
 //        self.cameraButton,
 //        self.giftButton,
         self.emojiButton
